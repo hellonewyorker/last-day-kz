@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Все тексты (в том числе title и description) подставляются из data/i18n.js -->
+  <title data-i18n="app.title"></title>
+  <meta name="description" data-i18n-attr="content:app.description">
+  <meta name="theme-color" content="#F5EFE6">
+
+  <!-- Google Fonts, пара A (выбрана): Geologica + Golos Text (обе — SIL Open Font License 1.1).
+       Пара B: family=Montserrat:wght@500;700;800&family=Onest:wght@400;500;600 (обе — SIL OFL 1.1).
+       Лицензия каждого шрифта — на его странице fonts.google.com, вкладка «License». -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geologica:wght@500;700;800&family=Golos+Text:wght@400;500;600&display=swap">
+
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+
+  <!-- Обычные скрипты (не модули), чтобы сайт открывался и двойным кликом по index.html -->
+  <script src="data/i18n.js" defer></script>
+  <script src="js/i18n.js" defer></script>
+  <script src="js/theme.js" defer></script>
+  <script src="js/tabs.js" defer></script>
+  <script src="js/main.js" defer></script>
+</head>
+<body>
+  <!-- Иконки -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-calc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M9 15l2 2 4-4"/></symbol>
+      <symbol id="i-rules" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12.5" r="8"/><path d="M12 8v4.5l3 2M10 2.5h4"/></symbol>
+      <symbol id="i-early" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H14"/><path d="M4 12h11M11 8l4 4-4 4"/></symbol>
+      <symbol id="i-payout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="6.5" width="17" height="13" rx="2.5"/><path d="M3.5 10.5h17M15.5 15h2M6 6.5l9.5-3 1 3"/></symbol>
+      <symbol id="i-sources" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17V6.5a2 2 0 0 1 2-2h11.5V17"/><path d="M5 17a2.5 2.5 0 0 0 2.5 2.5h11V17H7.5A2.5 2.5 0 0 0 5 19.5"/><path d="M9 8.5h6M9 11.5h4"/></symbol>
+      <symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M9 21h6"/><path d="M5 5.5h10l2.5 2.5L15 10.5H5zM19 13H9l-2.5 2.5L9 18h10z"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="app">
+    <!-- Шапка -->
+    <header class="topbar">
+      <a class="logo" href="#calc" data-i18n-attr="aria-label:logo.label">
+        <span data-i18n="logo.text"></span><span class="logo__dot" aria-hidden="true">.</span>
+      </a>
+      <div class="topbar__tools">
+        <span class="today-chip" id="today-chip"></span>
+        <button class="btn btn--ghost btn--help" type="button" id="help-open" aria-haspopup="dialog" aria-controls="help">
+          <svg aria-hidden="true"><use href="#i-help"/></svg>
+          <span class="btn__label" data-i18n="help.open"></span>
+        </button>
+        <button class="btn btn--ghost btn--icon theme-toggle" type="button" id="theme-toggle">
+          <svg class="i-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+          <svg class="i-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Бегущая строка: только повторяет то, что есть на сайте -->
+    <div class="ticker" id="ticker" role="region" data-i18n-attr="aria-label:ticker.label">
+      <div class="ticker__viewport">
+        <div class="ticker__track">
+          <ul class="ticker__list">
+            <li class="ticker__item" data-i18n="ticker.1"></li>
+            <li class="ticker__item" data-i18n="ticker.2"></li>
+            <li class="ticker__item" data-i18n="ticker.3"></li>
+            <li class="ticker__item" data-i18n="ticker.4"></li>
+            <li class="ticker__item" data-i18n="ticker.5"></li>
+          </ul>
+          <!-- копия для бесшовной прокрутки, скрыта от скринридеров -->
+          <ul class="ticker__list ticker__copy" aria-hidden="true">
+            <li class="ticker__item" data-i18n="ticker.1"></li>
+            <li class="ticker__item" data-i18n="ticker.2"></li>
+            <li class="ticker__item" data-i18n="ticker.3"></li>
+            <li class="ticker__item" data-i18n="ticker.4"></li>
+            <li class="ticker__item" data-i18n="ticker.5"></li>
+          </ul>
+        </div>
+      </div>
+      <button class="ticker__toggle" type="button" id="ticker-toggle">
+        <svg class="i-pause" aria-hidden="true"><use href="#i-pause"/></svg>
+        <svg class="i-play" aria-hidden="true"><use href="#i-play"/></svg>
+      </button>
+    </div>
+
+    <!-- Сцена: отрывной календарь + навигация -->
+    <main class="stage">
+      <div class="sheet-wrap">
+        <div class="sheet" id="sheet">
+          <div class="sheet__binding" aria-hidden="true"></div>
+          <div class="sheet__body">
+
+            <section class="panel" role="tabpanel" id="panel-calc" aria-labelledby="tab-calc" tabindex="0">
+              <span class="panel__ghost" aria-hidden="true" data-i18n="tab.calc.ghost"></span>
+              <div class="panel__head">
+                <span class="panel__num" aria-hidden="true">01 / 05</span>
+                <h2 class="panel__title" data-i18n="tab.calc.title"></h2>
+                <p class="panel__lead" data-i18n="tab.calc.lead"></p>
+              </div>
+              <div class="panel__content">
+                <div class="card day-card" id="today-card">
+                  <span class="day-card__label" data-i18n="today.label"></span>
+                  <span class="day-card__day" data-part="day"></span>
+                  <span class="day-card__month" data-part="month"></span>
+                  <span class="day-card__weekday" data-part="weekday"></span>
+                </div>
+                <div class="card stub">
+                  <span class="stub__badge" data-i18n="stub.badge"></span>
+                  <p class="stub__text" data-i18n="tab.calc.stub"></p>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel" role="tabpanel" id="panel-rules" aria-labelledby="tab-rules" tabindex="0" hidden>
+              <span class="panel__ghost" aria-hidden="true" data-i18n="tab.rules.ghost"></span>
+              <div class="panel__head">
+                <span class="panel__num" aria-hidden="true">02 / 05</span>
+                <h2 class="panel__title" data-i18n="tab.rules.title"></h2>
+                <p class="panel__lead" data-i18n="tab.rules.lead"></p>
+              </div>
+              <div class="panel__content">
+                <div class="card stub">
+                  <span class="stub__badge" data-i18n="stub.badge"></span>
+                  <p class="stub__text" data-i18n="tab.rules.stub"></p>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel" role="tabpanel" id="panel-early" aria-labelledby="tab-early" tabindex="0" hidden>
+              <span class="panel__ghost" aria-hidden="true" data-i18n="tab.early.ghost"></span>
+              <div class="panel__head">
+                <span class="panel__num" aria-hidden="true">03 / 05</span>
+                <h2 class="panel__title" data-i18n="tab.early.title"></h2>
+                <p class="panel__lead" data-i18n="tab.early.lead"></p>
+              </div>
+              <div class="panel__content">
+                <div class="card stub">
+                  <span class="stub__badge" data-i18n="stub.badge"></span>
+                  <p class="stub__text" data-i18n="tab.early.stub"></p>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel" role="tabpanel" id="panel-payout" aria-labelledby="tab-payout" tabindex="0" hidden>
+              <span class="panel__ghost" aria-hidden="true" data-i18n="tab.payout.ghost"></span>
+              <div class="panel__head">
+                <span class="panel__num" aria-hidden="true">04 / 05</span>
+                <h2 class="panel__title" data-i18n="tab.payout.title"></h2>
+                <p class="panel__lead" data-i18n="tab.payout.lead"></p>
+              </div>
+              <div class="panel__content">
+                <div class="card stub">
+                  <span class="stub__badge" data-i18n="stub.badge"></span>
+                  <p class="stub__text" data-i18n="tab.payout.stub"></p>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel" role="tabpanel" id="panel-sources" aria-labelledby="tab-sources" tabindex="0" hidden>
+              <span class="panel__ghost" aria-hidden="true" data-i18n="tab.sources.ghost"></span>
+              <div class="panel__head">
+                <span class="panel__num" aria-hidden="true">05 / 05</span>
+                <h2 class="panel__title" data-i18n="tab.sources.title"></h2>
+                <p class="panel__lead" data-i18n="tab.sources.lead"></p>
+              </div>
+              <div class="panel__content">
+                <div class="card stub">
+                  <span class="stub__badge" data-i18n="stub.badge"></span>
+                  <p class="stub__text" data-i18n="tab.sources.stub"></p>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Навигация: на ноутбуке — «ушки» справа, на телефоне — нижний док -->
+      <nav class="tabs" role="tablist" id="tablist" data-i18n-attr="aria-label:tabs.label">
+        <button class="tab" role="tab" type="button" id="tab-calc" data-tab="calc" aria-controls="panel-calc" aria-selected="true">
+          <span class="tab__num" aria-hidden="true">01</span>
+          <span class="tab__icon"><svg aria-hidden="true"><use href="#i-calc"/></svg></span>
+          <span class="tab__label" data-i18n="tab.calc.short"></span>
+        </button>
+        <button class="tab" role="tab" type="button" id="tab-rules" data-tab="rules" aria-controls="panel-rules" aria-selected="false" tabindex="-1">
+          <span class="tab__num" aria-hidden="true">02</span>
+          <span class="tab__icon"><svg aria-hidden="true"><use href="#i-rules"/></svg></span>
+          <span class="tab__label" data-i18n="tab.rules.short"></span>
+        </button>
+        <button class="tab" role="tab" type="button" id="tab-early" data-tab="early" aria-controls="panel-early" aria-selected="false" tabindex="-1">
+          <span class="tab__num" aria-hidden="true">03</span>
+          <span class="tab__icon"><svg aria-hidden="true"><use href="#i-early"/></svg></span>
+          <span class="tab__label" data-i18n="tab.early.short"></span>
+        </button>
+        <button class="tab" role="tab" type="button" id="tab-payout" data-tab="payout" aria-controls="panel-payout" aria-selected="false" tabindex="-1">
+          <span class="tab__num" aria-hidden="true">04</span>
+          <span class="tab__icon"><svg aria-hidden="true"><use href="#i-payout"/></svg></span>
+          <span class="tab__label" data-i18n="tab.payout.short"></span>
+        </button>
+        <button class="tab" role="tab" type="button" id="tab-sources" data-tab="sources" aria-controls="panel-sources" aria-selected="false" tabindex="-1">
+          <span class="tab__num" aria-hidden="true">05</span>
+          <span class="tab__icon"><svg aria-hidden="true"><use href="#i-sources"/></svg></span>
+          <span class="tab__label" data-i18n="tab.sources.short"></span>
+        </button>
+      </nav>
+    </main>
+  </div>
+
+  <!-- Панель «Куда обратиться» -->
+  <dialog class="help" id="help" aria-labelledby="help-title">
+    <div class="help__inner">
+      <div class="help__head">
+        <h2 class="help__title" id="help-title" data-i18n="help.title"></h2>
+        <button class="btn btn--ghost btn--icon" type="button" id="help-close" data-i18n-attr="aria-label:help.close">
+          <svg aria-hidden="true"><use href="#i-close"/></svg>
+        </button>
+      </div>
+      <div class="card stub">
+        <span class="stub__badge" data-i18n="stub.badge"></span>
+        <p class="stub__text" data-i18n="help.stub"></p>
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>

@@ -1,0 +1,123 @@
+/* =========================================================
+   Дизайн-система «Последний день.» — токены
+   Концепция: отрывной календарь на столе кадровика.
+
+   Шрифты (Google Fonts, подключаются в index.html):
+   Пара A (ВЫБРАНА автором):
+     • Geologica   — заголовки и цифры дат. Лицензия: SIL Open Font License 1.1
+     • Golos Text  — основной текст.        Лицензия: SIL Open Font License 1.1
+   Пара B (запасная):
+     • Montserrat  — заголовки и цифры дат. Лицензия: SIL Open Font License 1.1
+     • Onest       — основной текст.        Лицензия: SIL Open Font License 1.1
+   Все четыре шрифта проверены в браузере: казахские буквы
+   (ә ғ қ ң ө ұ ү һ і и заглавные) рисуются самим шрифтом.
+   НЕ подходят (нет части казахских букв): Unbounded, Manrope, Jost,
+   Dela Gothic One, Days One, Wix Madefor Display.
+   Чтобы переключить пару: поменять ссылку в index.html и две переменные --font-* ниже.
+
+   Правило цвета: бронза (--c-bronze) — только декор, линии и крупные элементы.
+   Для текста-акцента — --c-bronze-ink (проходит WCAG AA).
+   ========================================================= */
+
+:root {
+  /* --- Цвета: светлая тема --- */
+  --c-desk:        #F5EFE6;  /* фон «стола» */
+  --c-sheet:       #FBF8F2;  /* лист календаря */
+  --c-sheet-back:  #EADFCD;  /* листы под верхним */
+  --c-ink:         #3E2A14;  /* основной текст и кнопки */
+  --c-ink-soft:    #6A5137;  /* второстепенный текст */
+  --c-on-ink:      #F5EFE6;  /* текст на тёмных кнопках */
+  --c-bronze:      #A8875A;  /* декор, линии, кольца */
+  --c-bronze-ink:  #7A5A2E;  /* текстовый акцент */
+  --c-signal:      #B0392B;  /* «последний день» — один сигнальный цвет */
+  --c-on-signal:   #FFFFFF;  /* текст на сигнальном фоне */
+  --c-line:        rgba(62, 42, 20, 0.16);
+  --c-ghost:       rgba(62, 42, 20, 0.055); /* огромное бледное слово на фоне */
+  --c-shadow:      rgba(62, 42, 20, 0.18);
+  --c-focus:       #B0392B;
+
+  /* --- Шрифты --- */
+  --font-display: "Geologica", "Arial Black", system-ui, sans-serif;
+  --font-text:    "Golos Text", "Segoe UI", system-ui, sans-serif;
+
+  /* --- Типографическая шкала (растёт с экраном, но с пределами) --- */
+  --fs-xs:   0.75rem;                              /* 12px — подписи дока */
+  --fs-sm:   0.875rem;                             /* 14px */
+  --fs-base: 1rem;                                 /* 16px — минимум для текста */
+  --fs-lg:   clamp(1.0625rem, 0.9rem + 0.5vw, 1.25rem);
+  --fs-xl:   clamp(1.375rem, 1.1rem + 1.2vw, 2rem);
+  --fs-2xl:  clamp(1.75rem, 1.2rem + 2.4vw, 3.25rem);
+  --fs-ghost: clamp(5rem, 3rem + 14vw, 15rem);
+  --lh-tight: 1.1;
+  --lh-text:  1.5;
+
+  /* --- Отступы --- */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --gutter: clamp(0.75rem, 0.4rem + 1.6vw, 2rem);
+
+  /* --- Формы --- */
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --tap: 44px;               /* минимальная зона нажатия */
+  --topbar-h: 56px;
+  --ticker-h: 30px;
+  --dock-h: 64px;
+  --ear-w: 52px;
+
+  /* --- Движение --- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 140ms;
+  --dur-mid: 280ms;
+  --dur-slow: 520ms;
+  --ticker-speed: 38s;
+
+  color-scheme: light;
+}
+
+/* --- Тёмная тема: «стол вечером» --- */
+:root[data-theme="dark"] {
+  --c-desk:        #1C140C;
+  --c-sheet:       #2A1F14;
+  --c-sheet-back:  #3A2B1C;
+  --c-ink:         #F3EADC;
+  --c-ink-soft:    #CDBA9F;
+  --c-on-ink:      #1C140C;
+  --c-bronze:      #A8875A;
+  --c-bronze-ink:  #D4B27F;
+  --c-signal:      #E8735F;
+  --c-on-signal:   #1C140C;
+  --c-line:        rgba(243, 234, 220, 0.16);
+  --c-ghost:       rgba(243, 234, 220, 0.05);
+  --c-shadow:      rgba(0, 0, 0, 0.45);
+  --c-focus:       #E8735F;
+  color-scheme: dark;
+}
+
+/* Пока JS не выставил тему — уважаем системную */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --c-desk: #1C140C; --c-sheet: #2A1F14; --c-sheet-back: #3A2B1C;
+    --c-ink: #F3EADC; --c-ink-soft: #CDBA9F; --c-on-ink: #1C140C;
+    --c-bronze-ink: #D4B27F; --c-signal: #E8735F; --c-on-signal: #1C140C;
+    --c-line: rgba(243, 234, 220, 0.16); --c-ghost: rgba(243, 234, 220, 0.05);
+    --c-shadow: rgba(0, 0, 0, 0.45); --c-focus: #E8735F;
+    color-scheme: dark;
+  }
+}
+
+/* --- Меньше движения: всё стоит на месте --- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-mid: 0ms;
+    --dur-slow: 0ms;
+  }
+}

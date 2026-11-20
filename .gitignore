@@ -1,0 +1,17 @@
+# Сырой журнал промтов — личный, в публичный репозиторий (GitHub Pages) не уходит.
+# Если журнал нужно сдать вместе с проектом — удали эту строку.
+prompts-raw.log
+
+# Локальные настройки Claude Code и запуск локального сервера (пути только этого компьютера)
+.claude/settings.local.json
+.claude/launch.json
+
+# Системный мусор
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Редакторы
+.vscode/
+.idea/
+*.swp
