@@ -1,13 +1,14 @@
 /* =========================================================
    Каркас и компоненты «Последний день.»
-   Телефон (по умолчанию): шапка → бегущая строка → лист → нижний док.
-   Ноутбук (≥ 900px): лист + вертикальные «ушки» картотеки справа.
+   Телефон (по умолчанию): шапка → панель вкладок → лист → бегущая строка.
+   Ноутбук (≥ 900px): шапка → лист + вертикальные «ушки» картотеки справа → бегущая строка.
+   (Раскладка выбрана автором 20.11.2026.)
    ========================================================= */
 
 .app {
   height: 100%;
   display: grid;
-  grid-template-rows: var(--topbar-h) var(--ticker-h) minmax(0, 1fr);
+  grid-template-rows: var(--topbar-h) minmax(0, 1fr) var(--ticker-h);
 }
 
 /* ---------- Шапка ---------- */
@@ -154,8 +155,8 @@
 .stage {
   min-height: 0;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) var(--dock-h);
-  padding: var(--gutter) var(--gutter) 0;
+  grid-template-rows: var(--dock-h) minmax(0, 1fr);  /* телефон: вкладки сверху */
+  padding: 0 var(--gutter) var(--gutter);
   gap: var(--sp-3);
 }
 
@@ -362,15 +363,16 @@
 .day-card--signal .day-card__label { background: var(--c-signal); color: var(--c-on-signal); }
 .day-card--signal .day-card__day { color: var(--c-signal); }
 
-/* ---------- Навигация: нижний док (телефон) ---------- */
+/* ---------- Навигация: панель вкладок под шапкой (телефон) ---------- */
 .tabs {
+  order: -1;                       /* в разметке после листа, на экране — над ним */
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   margin-inline: calc(var(--gutter) * -1);
   padding: 0 var(--sp-2);
   background: var(--c-sheet);
-  border-top: 1px solid var(--c-line);
-  box-shadow: 0 -8px 24px -18px var(--c-shadow);
+  border-bottom: 1px solid var(--c-line);
+  box-shadow: 0 8px 24px -18px var(--c-shadow);
 }
 
 .tab {
@@ -402,7 +404,7 @@
 .tab[aria-selected="true"] {
   color: var(--c-ink);
   font-weight: 600;
-  transform: translateY(-5px);   /* активная вкладка «выдвигается» */
+  transform: translateY(4px);    /* активная вкладка «выдвигается» к листу */
 }
 .tab[aria-selected="true"] .tab__icon {
   background: var(--c-ink);
@@ -427,6 +429,7 @@
   }
 
   .tabs {
+    order: 0;                      /* «ушки» снова справа от листа */
     grid-template-columns: none;
     display: flex;
     flex-direction: column;

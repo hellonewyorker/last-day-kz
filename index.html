@@ -63,33 +63,6 @@
       </div>
     </header>
 
-    <!-- Бегущая строка: только повторяет то, что есть на сайте -->
-    <div class="ticker" id="ticker" role="region" data-i18n-attr="aria-label:ticker.label">
-      <div class="ticker__viewport">
-        <div class="ticker__track">
-          <ul class="ticker__list">
-            <li class="ticker__item" data-i18n="ticker.1"></li>
-            <li class="ticker__item" data-i18n="ticker.2"></li>
-            <li class="ticker__item" data-i18n="ticker.3"></li>
-            <li class="ticker__item" data-i18n="ticker.4"></li>
-            <li class="ticker__item" data-i18n="ticker.5"></li>
-          </ul>
-          <!-- копия для бесшовной прокрутки, скрыта от скринридеров -->
-          <ul class="ticker__list ticker__copy" aria-hidden="true">
-            <li class="ticker__item" data-i18n="ticker.1"></li>
-            <li class="ticker__item" data-i18n="ticker.2"></li>
-            <li class="ticker__item" data-i18n="ticker.3"></li>
-            <li class="ticker__item" data-i18n="ticker.4"></li>
-            <li class="ticker__item" data-i18n="ticker.5"></li>
-          </ul>
-        </div>
-      </div>
-      <button class="ticker__toggle" type="button" id="ticker-toggle">
-        <svg class="i-pause" aria-hidden="true"><use href="#i-pause"/></svg>
-        <svg class="i-play" aria-hidden="true"><use href="#i-play"/></svg>
-      </button>
-    </div>
-
     <!-- Сцена: отрывной календарь + навигация -->
     <main class="stage">
       <div class="sheet-wrap">
@@ -182,7 +155,7 @@
         </div>
       </div>
 
-      <!-- Навигация: на ноутбуке — «ушки» справа, на телефоне — нижний док -->
+      <!-- Навигация: на ноутбуке — «ушки» справа, на телефоне — панель над листом (CSS order) -->
       <nav class="tabs" role="tablist" id="tablist" data-i18n-attr="aria-label:tabs.label">
         <button class="tab" role="tab" type="button" id="tab-calc" data-tab="calc" aria-controls="panel-calc" aria-selected="true">
           <span class="tab__num" aria-hidden="true">01</span>
@@ -211,6 +184,33 @@
         </button>
       </nav>
     </main>
+
+    <!-- Бегущая строка внизу экрана: только повторяет то, что есть на сайте -->
+    <div class="ticker" id="ticker" role="region" data-i18n-attr="aria-label:ticker.label">
+      <div class="ticker__viewport">
+        <div class="ticker__track">
+          <ul class="ticker__list">
+            <li class="ticker__item" data-i18n="ticker.1"></li>
+            <li class="ticker__item" data-i18n="ticker.2"></li>
+            <li class="ticker__item" data-i18n="ticker.3"></li>
+            <li class="ticker__item" data-i18n="ticker.4"></li>
+            <li class="ticker__item" data-i18n="ticker.5"></li>
+          </ul>
+          <!-- копия для бесшовной прокрутки, скрыта от скринридеров -->
+          <ul class="ticker__list ticker__copy" aria-hidden="true">
+            <li class="ticker__item" data-i18n="ticker.1"></li>
+            <li class="ticker__item" data-i18n="ticker.2"></li>
+            <li class="ticker__item" data-i18n="ticker.3"></li>
+            <li class="ticker__item" data-i18n="ticker.4"></li>
+            <li class="ticker__item" data-i18n="ticker.5"></li>
+          </ul>
+        </div>
+      </div>
+      <button class="ticker__toggle" type="button" id="ticker-toggle">
+        <svg class="i-pause" aria-hidden="true"><use href="#i-pause"/></svg>
+        <svg class="i-play" aria-hidden="true"><use href="#i-play"/></svg>
+      </button>
+    </div>
   </div>
 
   <!-- Панель «Куда обратиться» -->

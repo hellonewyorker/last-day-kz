@@ -123,6 +123,7 @@
   }
 
   function syncOrientation() {
+    // ноутбук — вертикальные «ушки», телефон — горизонтальная панель
     tablist.setAttribute("aria-orientation", wide.matches ? "vertical" : "horizontal");
   }
 
