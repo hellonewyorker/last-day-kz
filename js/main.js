@@ -9,16 +9,7 @@
     var now = new Date(); // только показываем, нигде не храним
     var chip = document.getElementById("today-chip");
     chip.textContent = App.i18n.dateFormat({ weekday: "short", day: "numeric", month: "long" }).format(now);
-
-    // «19 ноября»: месяц берём в родительном падеже из formatToParts
-    var parts = App.i18n.dateFormat({ day: "numeric", month: "long" }).formatToParts(now);
-    var card = document.getElementById("today-card");
-    parts.forEach(function (p) {
-      var el = card.querySelector('[data-part="' + p.type + '"]');
-      if (el) el.textContent = p.value;
-    });
-    card.querySelector('[data-part="weekday"]').textContent =
-      App.i18n.dateFormat({ weekday: "long" }).format(now);
+    // Карточку «Сегодня» на вкладке калькулятора заменил листок в js/calc-ui.js
   }
 
   function initTicker() {
@@ -51,5 +42,6 @@
     initTicker();
     initToday();
     initHelp();
+    App.calcUI.init();
   });
 })();

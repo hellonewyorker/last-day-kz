@@ -98,6 +98,8 @@
   function onDocumentKey(e) {
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
     if (isTypingTarget(e.target) || document.querySelector("dialog[open]")) return;
+    // внутри калькулятора стрелки работают для его подвкладок, а не для больших вкладок
+    if (e.target.closest && e.target.closest("[data-no-arrow-nav]")) return;
     if (e.key === "ArrowRight") go(current + 1);
     else if (e.key === "ArrowLeft") go(current - 1);
   }

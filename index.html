@@ -18,12 +18,19 @@
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/calc.css">
 
-  <!-- Обычные скрипты (не модули), чтобы сайт открывался и двойным кликом по index.html -->
+  <!-- Обычные скрипты (не модули), чтобы сайт открывался и двойным кликом по index.html.
+       Порядок важен: данные → i18n → логика расчёта → интерфейс. -->
   <script src="data/i18n.js" defer></script>
+  <script src="data/holidays.js" defer></script>
+  <script src="data/sources.js" defer></script>
   <script src="js/i18n.js" defer></script>
+  <script src="js/calc.js" defer></script>
   <script src="js/theme.js" defer></script>
   <script src="js/tabs.js" defer></script>
+  <script src="js/minical.js" defer></script>
+  <script src="js/calc-ui.js" defer></script>
   <script src="js/main.js" defer></script>
 </head>
 <body>
@@ -41,6 +48,10 @@
       <symbol id="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></symbol>
       <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/></symbol>
       <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></symbol>
+      <symbol id="i-ics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></symbol>
+      <symbol id="i-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></symbol>
+      <symbol id="i-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></symbol>
     </defs>
   </svg>
 
@@ -70,24 +81,180 @@
           <div class="sheet__binding" aria-hidden="true"></div>
           <div class="sheet__body">
 
-            <section class="panel" role="tabpanel" id="panel-calc" aria-labelledby="tab-calc" tabindex="0">
+            <section class="panel panel--calc" role="tabpanel" id="panel-calc" aria-labelledby="tab-calc">
               <span class="panel__ghost" aria-hidden="true" data-i18n="tab.calc.ghost"></span>
               <div class="panel__head">
                 <span class="panel__num" aria-hidden="true">01 / 05</span>
                 <h2 class="panel__title" data-i18n="tab.calc.title"></h2>
                 <p class="panel__lead" data-i18n="tab.calc.lead"></p>
               </div>
-              <div class="panel__content">
-                <div class="card day-card" id="today-card">
-                  <span class="day-card__label" data-i18n="today.label"></span>
-                  <span class="day-card__day" data-part="day"></span>
-                  <span class="day-card__month" data-part="month"></span>
-                  <span class="day-card__weekday" data-part="weekday"></span>
+
+              <!-- Калькулятор: стрелки внутри не листают большие вкладки -->
+              <div class="calc" id="calc" data-card="input" data-no-arrow-nav>
+
+                <!-- Режимы (как вкладки старого сайта) -->
+                <div class="calc__modes" role="tablist" id="calc-modes" data-i18n-attr="aria-label:calc.modes.label" data-no-swipe>
+                  <span class="calc__pill" aria-hidden="true"></span>
+                  <button class="calc__mode" role="tab" type="button" id="mode-last" data-mode="last" aria-controls="form-last" aria-selected="true" data-i18n="calc.mode.last"></button>
+                  <button class="calc__mode" role="tab" type="button" id="mode-when" data-mode="when" aria-controls="form-when" aria-selected="false" tabindex="-1" data-i18n="calc.mode.when"></button>
+                  <button class="calc__mode" role="tab" type="button" id="mode-docs" data-mode="docs" aria-controls="form-docs" aria-selected="false" tabindex="-1" data-i18n="calc.mode.docs"></button>
+                  <button class="calc__mode" role="tab" type="button" id="mode-unpaid" data-mode="unpaid" aria-controls="form-unpaid" aria-selected="false" tabindex="-1" data-i18n="calc.mode.unpaid"></button>
                 </div>
-                <div class="card stub">
-                  <span class="stub__badge" data-i18n="stub.badge"></span>
-                  <p class="stub__text" data-i18n="tab.calc.stub"></p>
+
+                <!-- Карточки: на телефоне все четыре, на ноутбуке — «Даты» и «Пояснения» -->
+                <div class="calc__cards" role="tablist" id="calc-cards" data-i18n-attr="aria-label:calc.cards.label">
+                  <button class="calc__cardtab" role="tab" type="button" id="cardtab-input" data-card="input" aria-controls="card-input" aria-selected="true" data-i18n="calc.card.input"></button>
+                  <button class="calc__cardtab" role="tab" type="button" id="cardtab-dates" data-card="dates" aria-controls="card-dates" aria-selected="false" tabindex="-1" data-i18n="calc.card.dates"></button>
+                  <button class="calc__cardtab" role="tab" type="button" id="cardtab-calendar" data-card="calendar" aria-controls="card-calendar" aria-selected="false" tabindex="-1" data-i18n="calc.card.calendar"></button>
+                  <button class="calc__cardtab" role="tab" type="button" id="cardtab-notes" data-card="notes" aria-controls="card-notes" aria-selected="false" tabindex="-1" data-i18n="calc.card.notes"></button>
                 </div>
+
+                <!-- Ввод -->
+                <div class="calc__card calc__input" role="tabpanel" id="card-input" aria-labelledby="cardtab-input">
+
+                  <!-- Режим 1: последний день -->
+                  <form class="calc__form" id="form-last" data-mode="last" role="tabpanel" aria-labelledby="mode-last" aria-describedby="lead-last" novalidate>
+                    <p class="calc__lead" id="lead-last" data-i18n="calc.last.lead"></p>
+                    <div class="field">
+                      <div class="field__top">
+                        <label for="notice" data-i18n="calc.field.notice.label"></label>
+                        <button class="field__pick" type="button" data-pick="notice" tabindex="-1" aria-hidden="true"><svg><use href="#i-calc"/></svg></button>
+                      </div>
+                      <input id="notice" type="date" required aria-describedby="notice-hint">
+                      <p class="hint" id="notice-hint" data-i18n="calc.field.notice.hint"></p>
+                    </div>
+                    <fieldset class="field period" data-period>
+                      <legend data-i18n="calc.period.legend"></legend>
+                      <div class="chips">
+                        <label class="chip"><input type="radio" name="presetA" value="1" checked><span><span data-i18n="calc.period.1"></span> <small data-i18n="calc.period.byLaw"></small></span></label>
+                        <label class="chip"><input type="radio" name="presetA" value="2"><span data-i18n="calc.period.2"></span></label>
+                        <label class="chip"><input type="radio" name="presetA" value="3"><span data-i18n="calc.period.3"></span></label>
+                        <label class="chip"><input type="radio" name="presetA" value="custom" aria-controls="customA"><span data-i18n="calc.period.custom"></span></label>
+                      </div>
+                      <div class="period__row" id="customA" hidden>
+                        <label class="period__item"><input data-f="months" type="number" inputmode="numeric" min="0" max="24" step="1" value="1" aria-describedby="hintA"><span data-i18n="calc.period.months"></span></label>
+                        <label class="period__item"><input data-f="days" type="number" inputmode="numeric" min="0" max="730" step="1" value="0" aria-describedby="hintA"><span data-i18n="calc.period.days"></span></label>
+                      </div>
+                      <p class="hint" id="hintA" data-i18n="calc.period.hintA"></p>
+                    </fieldset>
+                    <button class="btn btn--primary calc__submit" type="submit" data-i18n="calc.submit"></button>
+                    <p class="calc__error" role="alert"></p>
+                  </form>
+
+                  <!-- Режим 2: когда подать -->
+                  <form class="calc__form" id="form-when" data-mode="when" role="tabpanel" aria-labelledby="mode-when" aria-describedby="lead-when" novalidate hidden>
+                    <p class="calc__lead" id="lead-when" data-i18n="calc.when.lead"></p>
+                    <div class="field">
+                      <div class="field__top">
+                        <label for="want" data-i18n="calc.field.want.label"></label>
+                        <button class="field__pick" type="button" data-pick="want" tabindex="-1" aria-hidden="true"><svg><use href="#i-calc"/></svg></button>
+                      </div>
+                      <input id="want" type="date" required aria-describedby="want-hint">
+                      <p class="hint" id="want-hint" data-i18n="calc.field.want.hint"></p>
+                    </div>
+                    <fieldset class="field period" data-period>
+                      <legend data-i18n="calc.period.legend"></legend>
+                      <div class="chips">
+                        <label class="chip"><input type="radio" name="presetB" value="1" checked><span><span data-i18n="calc.period.1"></span> <small data-i18n="calc.period.byLaw"></small></span></label>
+                        <label class="chip"><input type="radio" name="presetB" value="2"><span data-i18n="calc.period.2"></span></label>
+                        <label class="chip"><input type="radio" name="presetB" value="3"><span data-i18n="calc.period.3"></span></label>
+                        <label class="chip"><input type="radio" name="presetB" value="custom" aria-controls="customB"><span data-i18n="calc.period.custom"></span></label>
+                      </div>
+                      <div class="period__row" id="customB" hidden>
+                        <label class="period__item"><input data-f="months" type="number" inputmode="numeric" min="0" max="24" step="1" value="1" aria-describedby="hintB"><span data-i18n="calc.period.months"></span></label>
+                        <label class="period__item"><input data-f="days" type="number" inputmode="numeric" min="0" max="730" step="1" value="0" aria-describedby="hintB"><span data-i18n="calc.period.days"></span></label>
+                      </div>
+                      <p class="hint" id="hintB" data-i18n="calc.period.hintB"></p>
+                    </fieldset>
+                    <button class="btn btn--primary calc__submit" type="submit" data-i18n="calc.submit"></button>
+                    <p class="calc__error" role="alert"></p>
+                  </form>
+
+                  <!-- Режим 3: деньги и документы -->
+                  <form class="calc__form" id="form-docs" data-mode="docs" role="tabpanel" aria-labelledby="mode-docs" aria-describedby="lead-docs" novalidate hidden>
+                    <p class="calc__lead" id="lead-docs" data-i18n="calc.docs.lead"></p>
+                    <div class="field">
+                      <div class="field__top">
+                        <label for="term" data-i18n="calc.field.term.label"></label>
+                        <button class="field__pick" type="button" data-pick="term" tabindex="-1" aria-hidden="true"><svg><use href="#i-calc"/></svg></button>
+                      </div>
+                      <input id="term" type="date" required aria-describedby="term-hint">
+                      <p class="hint" id="term-hint" data-i18n="calc.field.term.hint"></p>
+                    </div>
+                    <div class="field">
+                      <div class="field__top">
+                        <label for="req"><span data-i18n="calc.field.req.label"></span> <span class="opt" data-i18n="calc.field.optional"></span></label>
+                        <button class="field__pick" type="button" data-pick="req" tabindex="-1" aria-hidden="true"><svg><use href="#i-calc"/></svg></button>
+                      </div>
+                      <input id="req" type="date" aria-describedby="req-hint">
+                      <p class="hint" id="req-hint" data-i18n="calc.field.req.hint"></p>
+                    </div>
+                    <button class="btn btn--primary calc__submit" type="submit" data-i18n="calc.submit"></button>
+                    <p class="calc__error" role="alert"></p>
+                  </form>
+
+                  <!-- Режим 4: если не заплатили -->
+                  <form class="calc__form" id="form-unpaid" data-mode="unpaid" role="tabpanel" aria-labelledby="mode-unpaid" aria-describedby="lead-unpaid" novalidate hidden>
+                    <p class="calc__lead" id="lead-unpaid" data-i18n="calc.unpaid.lead"></p>
+                    <div class="field">
+                      <div class="field__top">
+                        <label for="uterm" data-i18n="calc.field.uterm.label"></label>
+                        <button class="field__pick" type="button" data-pick="uterm" tabindex="-1" aria-hidden="true"><svg><use href="#i-calc"/></svg></button>
+                      </div>
+                      <input id="uterm" type="date" required aria-describedby="uterm-hint">
+                      <p class="hint" id="uterm-hint" data-i18n="calc.field.uterm.hint"></p>
+                    </div>
+                    <div class="field">
+                      <div class="field__top">
+                        <label for="utoday" data-i18n="calc.field.utoday.label"></label>
+                        <button class="field__pick" type="button" data-pick="utoday" tabindex="-1" aria-hidden="true"><svg><use href="#i-calc"/></svg></button>
+                      </div>
+                      <input id="utoday" type="date" required aria-describedby="utoday-hint">
+                      <p class="hint" id="utoday-hint" data-i18n="calc.field.utoday.hint"></p>
+                    </div>
+                    <button class="btn btn--primary calc__submit" type="submit" data-i18n="calc.submit"></button>
+                    <p class="calc__error" role="alert"></p>
+                  </form>
+                </div>
+
+                <!-- Мини-календарь (дублирует поля; для клавиатуры и диктора — поля выше) -->
+                <div class="calc__card calc__cal" role="tabpanel" id="card-calendar" aria-labelledby="cardtab-calendar">
+                  <p class="visually-hidden" data-i18n="calc.cal.srNote"></p>
+                  <div class="calc__calbox" aria-hidden="true">
+                    <div class="cal-target" id="cal-target"></div>
+                    <div class="minical" id="minical" data-no-swipe></div>
+                  </div>
+                </div>
+
+                <!-- Даты: листок + лента времени + действия -->
+                <div class="calc__card calc__dates" role="tabpanel" id="card-dates" aria-labelledby="cardtab-dates" hidden>
+                  <div class="leaf" id="leaf">
+                    <div class="leaf__sheet" id="leaf-sheet" aria-hidden="true">
+                      <span class="leaf__month" id="leaf-month"></span>
+                      <span class="leaf__day" id="leaf-day"></span>
+                      <span class="leaf__wd" id="leaf-wd"></span>
+                    </div>
+                    <div class="leaf__text">
+                      <p class="leaf__label" id="leaf-label"></p>
+                      <p class="leaf__date" id="leaf-date"></p>
+                      <p class="leaf__caption" id="leaf-caption"></p>
+                    </div>
+                  </div>
+                  <div class="calc__scroll" id="result-dates"></div>
+                  <div class="calc__actions" id="calc-actions" hidden>
+                    <button class="btn btn--ghost btn--sm" type="button" id="calc-copy"><svg aria-hidden="true"><use href="#i-copy"/></svg><span data-i18n="calc.copy"></span></button>
+                    <button class="btn btn--ghost btn--sm" type="button" id="calc-ics"><svg aria-hidden="true"><use href="#i-ics"/></svg><span data-i18n="calc.ics"></span></button>
+                    <p class="calc__status" id="calc-status" role="status"></p>
+                  </div>
+                </div>
+
+                <!-- Пояснения -->
+                <div class="calc__card calc__notes" role="tabpanel" id="card-notes" aria-labelledby="cardtab-notes" hidden>
+                  <div class="calc__scroll" id="result-notes"></div>
+                </div>
+
+                <p class="calc__assume"><strong data-i18n="calc.assume.strong"></strong> <span data-i18n="calc.assume.rest"></span> <span data-i18n="calc.assume.private"></span></p>
+                <p class="visually-hidden" id="calc-live" aria-live="polite"></p>
               </div>
             </section>
 

@@ -39,5 +39,7 @@
   document.documentElement.lang = locale;
 
   window.App = window.App || {};
-  window.App.i18n = { locale: locale, t: t, apply: apply, dateFormat: dateFormat };
+  function has(key) { return Object.prototype.hasOwnProperty.call(dict, key); }
+
+  window.App.i18n = { locale: locale, t: t, has: has, apply: apply, dateFormat: dateFormat };
 })();
