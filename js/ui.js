@@ -30,9 +30,9 @@
   }
   // key — ключ подписи в i18n: "ref.tk-56.p2" → источник "tk-56"
   function refHtml(key) {
-    var s = source(key.split(".")[1]);
+    var id = key.split(".")[1], s = source(id);
     if (!s) return "";
-    return ' <a class="ref" href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(t(key)) + "</a>";
+    return ' <a class="ref" href="' + esc(s.url) + '" target="_blank" rel="noopener" data-src="' + esc(id) + '">' + esc(t(key)) + "</a>";
   }
 
   /* ---------- Даты ---------- */

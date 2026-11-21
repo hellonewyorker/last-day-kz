@@ -9,7 +9,7 @@
   "use strict";
 
   var IDS = ["calc", "rules", "early", "payout", "sources"];
-  var LEAVE_MS = 560;      // чуть больше, чем --dur-slow
+  var LEAVE_MS = 340;      // переход «картотека» — не дольше 350 мс
   var SWIPE_MIN = 60;      // пикселей по горизонтали
 
   var tabs, panels, tablist;
@@ -53,10 +53,33 @@
     });
 
     var nextPanel = panels[next];
-    nextPanel.hidden = false;
     nextPanel.style.setProperty("--dir", dir);
+    // сообщаем остальным эффектам (js/fx.js), когда новая панель уже видна:
+    // заголовки по словам, пункты по очереди, фон, счётчики, «посмотрели N из 5»
+    var announced = false;
+    var announce = function () {
+      if (announced) return;
+      announced = true;
+      window.dispatchEvent(new CustomEvent("ld:tabchange", { detail: { id: IDS[next], index: next, prev: prev, animate: !!animate } }));
+    };
+    document.documentElement.style.setProperty("--vt-dir", dir);
+    document.documentElement.setAttribute("data-tab", IDS[next]);
 
-    if (animate && prev !== -1 && !reducedMotion.matches) {
+    if (animate && prev !== -1 && !reducedMotion.matches && document.startViewTransition) {
+      // «Перелистывание картотеки» через View Transitions API (css/fx.css: ::view-transition-*)
+      current = next;
+      // обратный вызов показывает АКТУАЛЬНУЮ вкладку (при быстрых переключениях старый вызов может прийти позже);
+      // если браузер не отрисовывает кадры (фоновая вкладка), через 400 мс выставляем состояние напрямую
+      var applied = false;
+      var sync = function () { applied = true; panels.forEach(function (p, i) { p.hidden = i !== current; }); announce(); };
+      var vt = document.startViewTransition(sync);
+      // при быстрых переключениях браузер отменяет прошлый переход — это нормально, не ошибка
+      var ignore = function () {};
+      if (vt) { vt.ready.catch(ignore); vt.finished.catch(ignore); vt.updateCallbackDone.catch(ignore); }
+      setTimeout(function () { if (!applied) sync(); }, 400);
+    } else if (animate && prev !== -1 && !reducedMotion.matches) {
+      // Запасной вариант без View Transitions: обе карточки на месте, анимации — CSS
+      nextPanel.hidden = false;
       var prevPanel = panels[prev];
       prevPanel.style.setProperty("--dir", dir);
       prevPanel.inert = true;
@@ -65,9 +88,12 @@
       current = next;
       leaveTimer = setTimeout(finishLeaving, LEAVE_MS);
     } else {
+      nextPanel.hidden = false;
       current = next;
       finishLeaving();
     }
+
+    if (!(animate && prev !== -1 && !reducedMotion.matches && document.startViewTransition)) announce();
 
     document.title = App.i18n.t("tab." + IDS[next] + ".title") + " — " + App.i18n.t("app.name");
   }
@@ -153,5 +179,5 @@
   }
 
   window.App = window.App || {};
-  window.App.tabs = { init: init, go: go, ids: IDS };
+  window.App.tabs = { init: init, go: go, ids: IDS, current: function () { return current; } };
 })();

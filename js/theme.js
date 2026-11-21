@@ -1,40 +1,47 @@
 /* =========================================================
-   Тема: светлая / тёмная.
-   По умолчанию — как в системе. Выбор НЕ сохраняется
-   (правило проекта: никакого localStorage).
+   Тема: три состояния, как в старом сайте — Авто → Светлая → Тёмная.
+   «Авто» — как в системе (атрибута data-theme нет, работает медиазапрос в tokens.css).
+   Выбор НЕ сохраняется (правило проекта: никакого localStorage).
    ========================================================= */
 (function () {
   "use strict";
 
   var root = document.documentElement;
   var media = window.matchMedia("(prefers-color-scheme: dark)");
-  var userChose = false;
+  var MODES = ["auto", "light", "dark"];
+  var mode = "auto";
 
-  function set(theme) {
-    root.setAttribute("data-theme", theme);
+  function t(k) { return App.i18n.t(k); }
+
+  function apply() {
+    if (mode === "auto") root.removeAttribute("data-theme");
+    else root.setAttribute("data-theme", mode);
 
     var btn = document.getElementById("theme-toggle");
     if (btn) {
-      btn.setAttribute("aria-label", App.i18n.t(theme === "dark" ? "theme.toLight" : "theme.toDark"));
+      var next = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+      btn.setAttribute("data-mode", mode);
+      btn.setAttribute("aria-label", t("theme.label")
+        .replace("{now}", t("theme.name." + mode))
+        .replace("{next}", t("theme.name." + next)));
+      btn.title = t("theme.title").replace("{now}", t("theme.name." + mode));
+      var txt = document.getElementById("theme-txt");
+      if (txt) txt.textContent = t("theme.short." + mode);
     }
-
+    // цвет адресной строки на телефоне — под фактическую тему
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute("content", getComputedStyle(root).getPropertyValue("--c-desk").trim());
   }
 
   function init() {
-    set(media.matches ? "dark" : "light");
-
-    media.addEventListener("change", function (e) {
-      if (!userChose) set(e.matches ? "dark" : "light");
-    });
-
+    apply();
+    media.addEventListener("change", function () { if (mode === "auto") apply(); });
     document.getElementById("theme-toggle").addEventListener("click", function () {
-      userChose = true;
-      set(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+      mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+      apply();
     });
   }
 
   window.App = window.App || {};
-  window.App.theme = { init: init };
+  window.App.theme = { init: init, mode: function () { return mode; } };
 })();

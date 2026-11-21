@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/calc.css">
   <link rel="stylesheet" href="css/topics.css">
+  <link rel="stylesheet" href="css/fx.css">
 
   <!-- Обычные скрипты (не модули), чтобы сайт открывался и двойным кликом по index.html.
        Порядок важен: данные → i18n → логика расчёта → интерфейс. -->
@@ -27,6 +28,7 @@
   <script src="data/holidays.js" defer></script>
   <script src="data/sources.js" defer></script>
   <script src="data/tree.js" defer></script>
+  <script src="data/ticker.js" defer></script>
   <script src="js/i18n.js" defer></script>
   <script src="js/calc.js" defer></script>
   <script src="js/theme.js" defer></script>
@@ -36,6 +38,7 @@
   <script src="js/calc-ui.js" defer></script>
   <script src="js/topics.js" defer></script>
   <script src="js/payout.js" defer></script>
+  <script src="js/fx.js" defer></script>
   <script src="js/main.js" defer></script>
 </head>
 <body>
@@ -49,6 +52,7 @@
       <symbol id="i-sources" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17V6.5a2 2 0 0 1 2-2h11.5V17"/><path d="M5 17a2.5 2.5 0 0 0 2.5 2.5h11V17H7.5A2.5 2.5 0 0 0 5 19.5"/><path d="M9 8.5h6M9 11.5h4"/></symbol>
       <symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M9 21h6"/><path d="M5 5.5h10l2.5 2.5L15 10.5H5zM19 13H9l-2.5 2.5L9 18h10z"/></symbol>
       <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></symbol>
+      <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></symbol>
       <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
       <symbol id="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></symbol>
       <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/></symbol>
@@ -60,22 +64,30 @@
     </defs>
   </svg>
 
+  <div class="bg-glow" aria-hidden="true"><i></i><i></i></div>
   <div class="app">
     <!-- Шапка -->
     <header class="topbar">
       <a class="logo" href="#calc" data-i18n-attr="aria-label:logo.label">
         <span data-i18n="logo.text"></span><span class="logo__dot" aria-hidden="true">.</span>
       </a>
+      <p class="seen" id="seen" role="status">
+        <span class="seen__dots" id="seen-dots" aria-hidden="true"></span>
+        <span class="seen__txt" id="seen-txt"></span>
+      </p>
       <div class="topbar__tools">
         <span class="today-chip" id="today-chip"></span>
         <button class="btn btn--ghost btn--help" type="button" id="help-open" aria-haspopup="dialog" aria-controls="help">
           <svg aria-hidden="true"><use href="#i-help"/></svg>
           <span class="btn__label" data-i18n="help.open"></span>
         </button>
-        <button class="btn btn--ghost btn--icon theme-toggle" type="button" id="theme-toggle">
-          <svg class="i-moon" aria-hidden="true"><use href="#i-moon"/></svg>
-          <svg class="i-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+        <button class="btn btn--ghost theme-toggle" type="button" id="theme-toggle" data-mode="auto">
+          <svg class="theme-ic theme-ic--auto" aria-hidden="true"><use href="#i-auto"/></svg>
+          <svg class="theme-ic theme-ic--light" aria-hidden="true"><use href="#i-sun"/></svg>
+          <svg class="theme-ic theme-ic--dark" aria-hidden="true"><use href="#i-moon"/></svg>
+          <span class="theme-toggle__txt" id="theme-txt" aria-hidden="true"></span>
         </button>
+        <button class="btn btn--ghost btn--icon tour-open" type="button" id="tour-open" data-i18n-attr="aria-label:tour.open;title:tour.open"><span aria-hidden="true">?</span></button>
       </div>
     </header>
 
@@ -87,11 +99,12 @@
           <div class="sheet__body">
 
             <section class="panel panel--compact panel--calc" role="tabpanel" id="panel-calc" aria-labelledby="tab-calc">
-              <span class="panel__ghost" aria-hidden="true" data-i18n="tab.calc.ghost"></span>
+              <span class="panel__ghost panel__ghost--marquee" aria-hidden="true"><span class="ghost-track"><span data-i18n="tab.calc.marquee"></span><span data-i18n="tab.calc.marquee"></span></span></span>
               <div class="panel__head">
                 <span class="panel__num" aria-hidden="true">01 / 05</span>
                 <h2 class="panel__title" data-i18n="tab.calc.title"></h2>
                 <p class="panel__lead" data-i18n="tab.calc.lead"></p>
+                <div class="stats" id="stats"></div>
               </div>
 
               <!-- Калькулятор: стрелки внутри не листают большие вкладки -->
@@ -251,6 +264,8 @@
                     <button class="btn btn--ghost btn--sm" type="button" id="calc-ics"><svg aria-hidden="true"><use href="#i-ics"/></svg><span data-i18n="calc.ics"></span></button>
                     <p class="calc__status" id="calc-status" role="status"></p>
                   </div>
+                  <!-- на телефоне сюда переезжают счётчики (пока нет результата) -->
+                  <div class="stats-slot" id="stats-slot"></div>
                 </div>
 
                 <!-- Пояснения -->
@@ -383,6 +398,14 @@
 
           </div>
         </div>
+        <!-- Бейдж «ДАЛЬШЕ →»: следующая вкладка. Текст по кругу — SVG textPath -->
+        <button class="next-badge" type="button" id="next-badge">
+          <svg class="next-badge__ring" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+            <defs><path id="badge-circle" d="M50,50 m-37,0 a37,37 0 1,1 74,0 a37,37 0 1,1 -74,0"/></defs>
+            <text class="next-badge__text"><textPath href="#badge-circle" textLength="230" lengthAdjust="spacing" data-i18n="badge.text"></textPath></text>
+          </svg>
+          <svg class="next-badge__arrow" aria-hidden="true"><use href="#i-right"/></svg>
+        </button>
       </div>
 
       <!-- Навигация: на ноутбуке — «ушки» справа, на телефоне — панель над листом (CSS order) -->
@@ -419,21 +442,9 @@
     <div class="ticker" id="ticker" role="region" data-i18n-attr="aria-label:ticker.label">
       <div class="ticker__viewport">
         <div class="ticker__track">
-          <ul class="ticker__list">
-            <li class="ticker__item" data-i18n="ticker.1"></li>
-            <li class="ticker__item" data-i18n="ticker.2"></li>
-            <li class="ticker__item" data-i18n="ticker.3"></li>
-            <li class="ticker__item" data-i18n="ticker.4"></li>
-            <li class="ticker__item" data-i18n="ticker.5"></li>
-          </ul>
+          <ul class="ticker__list" id="ticker-list"></ul>
           <!-- копия для бесшовной прокрутки, скрыта от скринридеров -->
-          <ul class="ticker__list ticker__copy" aria-hidden="true">
-            <li class="ticker__item" data-i18n="ticker.1"></li>
-            <li class="ticker__item" data-i18n="ticker.2"></li>
-            <li class="ticker__item" data-i18n="ticker.3"></li>
-            <li class="ticker__item" data-i18n="ticker.4"></li>
-            <li class="ticker__item" data-i18n="ticker.5"></li>
-          </ul>
+          <ul class="ticker__list ticker__copy" id="ticker-copy" aria-hidden="true"></ul>
         </div>
       </div>
       <button class="ticker__toggle" type="button" id="ticker-toggle">
@@ -441,6 +452,14 @@
         <svg class="i-play" aria-hidden="true"><use href="#i-play"/></svg>
       </button>
     </div>
+  </div>
+
+  <!-- Карточка источника у пометки-ссылки (js/fx.js) -->
+  <div class="ref-pop" id="ref-pop" role="tooltip" hidden></div>
+  <!-- Онбординг: три подсказки-пузыря (js/fx.js) -->
+  <div class="tour" id="tour" hidden>
+    <div class="tour__spot" id="tour-spot"></div>
+    <div class="tour__bubble" id="tour-bubble" role="dialog" aria-modal="false" aria-labelledby="tour-text"></div>
   </div>
 
   <!-- Панель «Куда обратиться» -->

@@ -84,7 +84,7 @@
   function refHtml(r) {
     var s = sources[r.id];
     if (!s) return "";
-    return ' <a class="ref" href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(t(r.key)) + "</a>";
+    return ' <a class="ref" href="' + esc(s.url) + '" target="_blank" rel="noopener" data-src="' + esc(r.id) + '">' + esc(t(r.key)) + "</a>";
   }
   function part(text, refs) { return { text: text, refs: refs || [] }; }
   function partsHtml(parts) {
