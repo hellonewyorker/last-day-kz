@@ -132,7 +132,7 @@
 .flip__back .flip__tag { color: color-mix(in srgb, var(--c-on-ink) 75%, transparent); }
 .flip__q { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-base); line-height: 1.25; padding-right: var(--sp-5); }
 .flip__a { font-size: var(--fs-sm); line-height: 1.4; }
-.flip__a:focus { outline: none; }
+.flip__a:focus-visible { outline: 2px dashed var(--c-on-ink); outline-offset: 4px; } /* сюда переходит фокус после переворота с клавиатуры */
 .flip__again { align-self: flex-start; margin-top: auto; font-size: var(--fs-xs); text-decoration: underline; text-underline-offset: 2px; color: inherit; min-height: 32px; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -247,7 +247,7 @@
   animation: step-in var(--dur-slow) var(--ease-out);
 }
 .tree__q { font-size: var(--fs-xl); line-height: 1.25; }
-.tree__q:focus, .tree__title:focus { outline: none; }
+.tree__q:focus-visible, .tree__title:focus-visible { outline: 2px dashed var(--c-focus); outline-offset: 4px; } /* фокус после ответа «Да/Нет» */
 .tree__answers { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
 .tree__ans { min-height: 52px; font-size: var(--fs-base); border-radius: var(--r-md); }
 .tree__card--result { gap: var(--sp-3); border-left: 4px solid var(--c-signal); }

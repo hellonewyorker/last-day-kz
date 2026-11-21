@@ -3,10 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <!-- Все тексты (в том числе title и description) подставляются из data/i18n.js -->
-  <title data-i18n="app.title"></title>
-  <meta name="description" data-i18n-attr="content:app.description">
+  <!-- Исключение из правила 9 (решение автора): title, description и og-тексты вписаны прямо в HTML,
+       потому что мессенджеры и поисковики читают HTML без JS. Это копия текстов из data/i18n.js,
+       JS всё равно подставляет их из словаря. Совпадение проверяет node tests/meta.test.js. -->
+  <title data-i18n="app.title">Последний день — калькулятор увольнения по собственному желанию (РК)</title>
+  <meta name="description" data-i18n-attr="content:app.description" content="Простой калькулятор для тех, кто впервые увольняется по собственному желанию в Казахстане: когда закончится срок уведомления и когда с вами должны рассчитаться.">
   <meta name="theme-color" content="#F5EFE6">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+
+  <!-- Open Graph / превью ссылки в мессенджерах. Картинка — img/og.png (tests/make-images.js).
+       [ПРОВЕРИТЬ] После публикации на GitHub Pages заменить адрес картинки на абсолютный
+       (https://<имя>.github.io/<репозиторий>/img/og.png) — с относительным мессенджеры картинку не покажут. -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:title" data-i18n-attr="content:app.title" content="Последний день — калькулятор увольнения по собственному желанию (РК)">
+  <meta property="og:description" data-i18n-attr="content:app.description" content="Простой калькулятор для тех, кто впервые увольняется по собственному желанию в Казахстане: когда закончится срок уведомления и когда с вами должны рассчитаться.">
+  <meta property="og:image" content="img/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" data-i18n-attr="content:og.image.alt" content="«Последний день.» — калькулятор увольнения по собственному желанию, Казахстан">
+  <meta name="twitter:card" content="summary_large_image">
 
   <!-- Google Fonts, пара A (выбрана): Geologica + Golos Text (обе — SIL Open Font License 1.1).
        Пара B: family=Montserrat:wght@500;700;800&family=Onest:wght@400;500;600 (обе — SIL OFL 1.1).

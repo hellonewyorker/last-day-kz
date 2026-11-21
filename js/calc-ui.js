@@ -138,7 +138,9 @@
   function fail(r, dateKey) {
     var msg = r.error === "invalid-date" ? t(dateKey)
       : (App.i18n.has("calc.error." + r.error) ? t("calc.error." + r.error) : t("calc.error.fallback"));
-    return { ok: false, error: r.error, msg: msg, refs: r.error === "too-short" ? [R("tk-56", "p1")] : [] };
+    // too-short — ст. 56 п. 1; before-calendar упоминает новый список праздников — Закон о праздниках
+    var refs = r.error === "too-short" ? [R("tk-56", "p1")] : (r.error === "before-calendar" ? [R("law-holidays")] : []);
+    return { ok: false, error: r.error, msg: msg, refs: refs };
   }
   function workDaysAfter(from, toIncl) {
     var out = [];
@@ -155,12 +157,27 @@
     return m;
   }
 
+  // Пометки к перечням выходных и праздников: Закон о праздниках; Рождество и Курбан-айт — ст. 84 п. 5 ТК
+  function dayOffRefs(reasons) {
+    var sat = t("calc.dayoff.saturday"), sun = t("calc.dayoff.sunday");
+    var tkNames = (window.LD_HOLIDAYS || []).filter(function (h) { return !h.transfer; }).map(function (h) { return h.name; });
+    var law = false, tk = false;
+    reasons.forEach(function (r) {
+      if (!r || r === sat || r === sun) return;
+      if (tkNames.indexOf(r) !== -1) tk = true; else law = true;
+    });
+    var out = [];
+    if (law) out.push(R("law-holidays"));
+    if (tk) out.push(R("tk-84", "p5"));
+    return out;
+  }
+
   // Примечания к расчёту срока уведомления (режимы 1 и 2)
   function periodNotes(r) {
     var notes = [];
     if (r.noticeOnDayOff) {
       notes.push({ warn: true, parts: [part(t(r.wantedLastDay ? "calc.note.noticeOnDayOff.when" : "calc.note.noticeOnDayOff",
-        { date: short(r.noticeDate), reason: lowerFirst(r.noticeOnDayOff) }))] });
+        { date: short(r.noticeDate), reason: lowerFirst(r.noticeOnDayOff) }), dayOffRefs([r.noticeOnDayOff]))] });
     }
     if (r.months !== 1 || r.days !== 0) {
       var ps = [part(t("calc.note.customPeriod", { period: periodText(r.months, r.days) }), [R("tk-56", "p1")])];
@@ -171,7 +188,8 @@
       var why = r.endShifted.map(function (s) {
         return t("calc.note.endShifted.item", { date: short(s.date), reason: lowerFirst(s.reason) });
       }).join(t("calc.note.endShifted.join"));
-      notes.push({ parts: [part(t("calc.note.endShifted", { period: periodText(r.months, r.days), date: short(r.nominalEnd), why: why }), [R("tk-13", "p5")])] });
+      notes.push({ parts: [part(t("calc.note.endShifted", { period: periodText(r.months, r.days), date: short(r.nominalEnd), why: why }),
+        [R("tk-13", "p5")].concat(dayOffRefs(r.endShifted.map(function (s) { return s.reason; }))))] });
     }
     if (r.noSuchDay) {
       notes.push({ parts: [part(t("calc.note.noSuchDay", { day: +r.noticeDate.slice(8, 10) }), [R("tk-13", "p4")])] });
@@ -180,7 +198,8 @@
       var list = r.paymentDaysOff.map(function (s) {
         return t("calc.note.paymentDaysOff.item", { date: short(s.date), reason: lowerFirst(s.reason) });
       }).join(t("calc.note.paymentDaysOff.join"));
-      notes.push({ parts: [part(t("calc.note.paymentDaysOff", { list: list }))] });
+      notes.push({ parts: [part(t("calc.note.paymentDaysOff", { list: list }),
+        [R("tk-113", "p4")].concat(dayOffRefs(r.paymentDaysOff.map(function (s) { return s.reason; }))))] });
     }
     notes.push({ parts: [part(t("calc.note.terminationDay"))] });
     return notes;
@@ -244,9 +263,9 @@
       if (!r.ok) return fail(r, "calc.docs.error.date");
       var notes = [];
       if (r.terminationOnDayOff) {
-        notes.push({ warn: true, parts: [part(t("calc.docs.note.terminationOnDayOff", { date: short(r.terminationDate), reason: lowerFirst(r.terminationOnDayOff) }))] });
+        notes.push({ warn: true, parts: [part(t("calc.docs.note.terminationOnDayOff", { date: short(r.terminationDate), reason: lowerFirst(r.terminationOnDayOff) }), dayOffRefs([r.terminationOnDayOff]))] });
       }
-      notes.push({ parts: [part(t("calc.docs.note.fiveDayWeek"))] });
+      notes.push({ parts: [part(t("calc.docs.note.fiveDayWeek"), [R("law-holidays")])] });
       var m = {};
       workDaysAfter(r.terminationDate, r.paymentDeadline).forEach(function (x) { m[x] = "pay"; });
       m[r.certificateDeadline] = "doc";

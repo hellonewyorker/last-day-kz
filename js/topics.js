@@ -114,6 +114,14 @@
       pay: U.short(r.paymentDeadline)
     });
   }
+  // пометки к тексту примера: «то же число / последний день месяца», перенос с нерабочего дня, 3 рабочих дня;
+  // если срок упал на праздник — ещё Закон о праздниках
+  function exampleRefs(r) {
+    var keys = ["ref.tk-13.p4", "ref.tk-13.p5", "ref.tk-113.p4"];
+    var reason = C.dayOffReason(r.nominalEnd);
+    if (reason && reason !== t("calc.dayoff.saturday") && reason !== t("calc.dayoff.sunday")) keys.push("ref.law-holidays");
+    return keys;
+  }
   function initGame() {
     var box = $("game"), idx = 0;
     function render() {
@@ -144,7 +152,7 @@
         var last = idx === EXAMPLES.length - 1;
         $("game-fb").innerHTML =
           '<p class="game__verdict' + (right ? " is-right" : "") + '">' + U.esc(right ? t("game.right") : t("game.wrong", { date: U.short(o.r.noticeEnd) })) + "</p>" +
-          '<p class="game__text">' + U.esc(exampleText(ex, o.r)) + "</p>" +
+          '<p class="game__text">' + U.esc(exampleText(ex, o.r)) + refs(exampleRefs(o.r)) + "</p>" +
           '<div class="game__actions"><button class="btn btn--primary btn--sm" type="button" data-try="' + ex.notice + '">' + U.esc(t("game.try")) + "</button>" +
           '<button class="btn btn--ghost btn--sm" type="button" data-next>' + U.esc(t(last ? "game.restart" : "game.next")) + "</button></div>";
         return;
