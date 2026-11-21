@@ -6,14 +6,14 @@
    ========================================================= */
 
 /* ---------- Заголовок вкладки: компактный ---------- */
-.panel--calc { padding-block: var(--sp-4); gap: var(--sp-3); }
-.panel--calc .panel__lead { display: none; }
-.panel--calc .panel__head { grid-auto-flow: column; justify-content: start; align-items: baseline; gap: var(--sp-3); }
-.panel--calc .panel__title { font-size: var(--fs-xl); }
+.panel--compact { padding-block: var(--sp-4); gap: var(--sp-3); }
+.panel--compact .panel__lead { display: none; }
+.panel--compact .panel__head { grid-auto-flow: column; justify-content: start; align-items: baseline; gap: var(--sp-3); }
+.panel--compact .panel__title { font-size: var(--fs-xl); }
 
 @media (max-width: 899px) {
-  .panel--calc { grid-template-rows: minmax(0, 1fr); padding: var(--sp-3); }
-  .panel--calc .panel__head { /* заголовок только для диктора: место нужно форме */
+  .panel--compact { grid-template-rows: minmax(0, 1fr); padding: var(--sp-3); }
+  .panel--compact .panel__head { /* заголовок только для диктора: место нужно форме */
     position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
   }
 }
@@ -360,8 +360,8 @@
 
 /* ---------- Ноутбук: подстройка размеров ---------- */
 @media (min-width: 900px) {
-  .panel--calc { padding-block: var(--sp-3); }
-  .panel--calc .panel__title { font-size: var(--fs-lg); }
+  .panel--compact { padding-block: var(--sp-3); }
+  .panel--compact .panel__title { font-size: var(--fs-lg); }
   .calc { row-gap: var(--sp-2); }
   .calc__lead { display: none; }        /* вводная — для диктора через aria-describedby */
   .timeline { gap: 6px; }

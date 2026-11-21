@@ -122,65 +122,13 @@
     apply(false);
     return {
       value: function () { return [toCount(mi.value), toCount(di.value)]; },
-      isCustomRadio: function (el) { return el.type === "radio" && el.value === "custom"; }
+      isCustomRadio: function (el) { return el.type === "radio" && el.value === "custom"; },
+      reset: function () { radios[0].checked = true; apply(false); }   // «1 месяц по закону»
     };
   }
 
-  /* ---------- Вкладки с «таблеткой» (placePill + selectTab) ---------- */
-  function Tabs(list, onSelect) {
-    var tabs = Array.prototype.slice.call(list.querySelectorAll('[role="tab"]'));
-    var pill = list.querySelector(".calc__pill");
-    function visible() { return tabs.filter(function (b) { return b.offsetParent !== null; }); }
-    function current() { return tabs.filter(function (b) { return b.getAttribute("aria-selected") === "true"; })[0]; }
-
-    // Таблетка переезжает под выбранную вкладку: позиция и размер — из реальных размеров кнопки
-    function placePill(instant) {
-      var b = current();
-      if (!pill || !b || !b.offsetParent) return;
-      if (instant) pill.classList.add("no-anim");
-      pill.style.width = b.offsetWidth + "px";
-      pill.style.height = b.offsetHeight + "px";
-      pill.style.transform = "translate(" + b.offsetLeft + "px," + b.offsetTop + "px)";
-      if (instant) { void pill.offsetWidth; pill.classList.remove("no-anim"); }
-      pill.classList.add("is-ready");
-    }
-    function reveal(b) { // прокручиваем только саму строку вкладок, не страницу
-      if (list.scrollWidth > list.clientWidth) list.scrollLeft = b.offsetLeft - (list.clientWidth - b.offsetWidth) / 2;
-    }
-    function select(b, focus, silent) {
-      tabs.forEach(function (x) {
-        var on = x === b;
-        x.setAttribute("aria-selected", on ? "true" : "false");
-        x.tabIndex = on ? 0 : -1;
-      });
-      placePill(false);
-      reveal(b);
-      if (focus) b.focus();
-      if (!silent) onSelect(b);
-    }
-    tabs.forEach(function (b) { b.addEventListener("click", function () { select(b, false); }); });
-    list.addEventListener("keydown", function (e) {
-      var v = visible(), i = v.indexOf(document.activeElement), n = null;
-      if (i < 0) return;
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") n = (i + 1) % v.length;
-      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") n = (i + v.length - 1) % v.length;
-      else if (e.key === "Home") n = 0;
-      else if (e.key === "End") n = v.length - 1;
-      if (n === null) return;
-      e.preventDefault();               // и не даём стрелкам листать большие вкладки
-      select(v[n], true);
-    });
-    if (window.ResizeObserver) new ResizeObserver(function () { placePill(true); }).observe(list);
-    window.addEventListener("load", function () { placePill(true); });
-    placePill(true);
-    return {
-      select: function (name, focus, silent) {
-        var b = tabs.filter(function (x) { return x.getAttribute("data-mode") === name || x.getAttribute("data-card") === name; })[0];
-        if (b) select(b, focus, silent);
-      },
-      place: placePill
-    };
-  }
+  // Подвкладки с «таблеткой» — общий помощник App.ui.Tabs (js/ui.js)
+  var Tabs = function (list, onSelect) { return App.ui.Tabs(list, onSelect); };
 
   /* ---------- Расчёты режимов (тексты шагов — из runLast/runWhen/runDocs/runUnpaid) ---------- */
   function val(id) { return $(id).value; }
@@ -251,7 +199,7 @@
       var r = C.calculate(val("notice"), p[0], p[1]);
       if (!r.ok) return fail(r, "calc.last.error.date");
       return {
-        ok: true, main: r.noticeEnd, calMonth: r.noticeEnd,
+        ok: true, raw: r, main: r.noticeEnd, calMonth: r.noticeEnd,
         steps: [
           step(t("calc.last.notice.label"), r.noticeDate, [part(t("calc.last.notice.note", { date: short(r.countStart) }), [R("tk-13", "p3")])]),
           step(t("calc.last.end.label"), r.noticeEnd, [part(t("calc.last.end.note"), [R("tk-56", "p4-5"), R("tk-62")])], true),
@@ -278,7 +226,7 @@
         notes.push({ parts: [part(t("calc.when.note.notExact", { wanted: long(r.wantedLastDay), notice: long(r.noticeDate), end: long(r.noticeEnd) }))] });
       }
       return {
-        ok: true, main: r.noticeDate, calMonth: r.noticeDate,
+        ok: true, raw: r, main: r.noticeDate, calMonth: r.noticeDate,
         steps: [
           step(t("calc.when.notice.label"), r.noticeDate, note1, true),
           step(t("calc.when.end.label"), r.noticeEnd, [part(t("calc.when.end.note"), [R("tk-56", "p5")])]),
@@ -304,7 +252,7 @@
       m[r.certificateDeadline] = "doc";
       m[r.terminationDate] = "last";
       return {
-        ok: true, main: r.paymentDeadline, calMonth: r.paymentDeadline,
+        ok: true, raw: r, main: r.paymentDeadline, calMonth: r.paymentDeadline,
         steps: [
           step(t("calc.docs.workDocument.label"), r.workDocument, [part(t("calc.docs.workDocument.note"), [R("tk-62", "p1")])]),
           step(t("calc.docs.payment.label"), r.paymentDeadline, [part(t("calc.docs.payment.note"), [R("tk-113", "p4"), R("tk-96", "p2")])], true),
@@ -342,7 +290,7 @@
       m[r.terminationDate] = "last";
       if (r.applyBy <= C.CALENDAR_TO) m[r.applyBy] = "apply";
       return {
-        ok: true, main: r.applyBy, calMonth: r.paymentDeadline, ref: r.today,
+        ok: true, raw: r, main: r.applyBy, calMonth: r.paymentDeadline, ref: r.today,
         steps: [
           step(t("calc.unpaid.deadline.label"), r.paymentDeadline, [part(t("calc.unpaid.deadline.note"), [R("tk-113", "p4")])]),
           step(t("calc.unpaid.overdue.label", { date: long(r.today, false) }), null,
@@ -708,6 +656,45 @@
     setMode("last");
   }
 
+  /* ---------- Вызовы из других вкладок ---------- */
+  // Открыть вкладку ① в нужном режиме (например, из вывода «можно отозвать»)
+  function openMode(mode) {
+    if (location.hash !== "#calc") location.hash = "calc";
+    modeTabs.select(mode, false);
+    if (!wide.matches) cardTabs.select("input", false);
+    setTimeout(function () { var el = $(TARGETS[mode][0]); if (el) el.focus({ preventScroll: true }); }, 50);
+  }
+  // «Посчитать этот пример» (data-try в старом app.js): режим «Последний день», срок по закону, сразу считаем
+  function tryExample(iso) {
+    if (location.hash !== "#calc") location.hash = "calc";
+    modeTabs.select("last", false);
+    $("notice").value = iso;
+    periods.last.reset();
+    state.ran.last = true;
+    var res = run("last");
+    if (res.ok) {
+      cal.setSelected(iso);
+      cal.showMonthOf(res.calMonth);
+      if (!wide.matches) cardTabs.select("dates", false);
+    }
+    // фокус — туда, где виден результат: на ноутбуке поле даты, на телефоне вкладка «Даты»
+    setTimeout(function () { (wide.matches ? $("notice") : $("cardtab-dates")).focus({ preventScroll: true }); }, 50);
+  }
+
+  // Для вкладки ④: дата прекращения договора из последнего удачного расчёта (и дата запроса справки, если есть)
+  function termination() {
+    var order = ["docs", "last", "when", "unpaid"];
+    for (var i = 0; i < order.length; i++) {
+      var res = state.results[order[i]];
+      if (!res || !res.ok) continue;
+      var r = res.raw;
+      if (order[i] === "docs") return { term: r.terminationDate, req: r.requestDate, from: "docs" };
+      if (order[i] === "unpaid") return { term: r.terminationDate, from: "unpaid" };
+      return { term: r.noticeEnd, from: order[i] };
+    }
+    return null;
+  }
+
   window.App = window.App || {};
-  window.App.calcUI = { init: init };
+  window.App.calcUI = { init: init, openMode: openMode, tryExample: tryExample, termination: termination };
 })();

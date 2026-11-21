@@ -43,5 +43,7 @@
     initToday();
     initHelp();
     App.calcUI.init();
+    App.topics.init();
+    App.payout.init();
   });
 })();

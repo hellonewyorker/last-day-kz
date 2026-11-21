@@ -19,18 +19,23 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/calc.css">
+  <link rel="stylesheet" href="css/topics.css">
 
   <!-- Обычные скрипты (не модули), чтобы сайт открывался и двойным кликом по index.html.
        Порядок важен: данные → i18n → логика расчёта → интерфейс. -->
   <script src="data/i18n.js" defer></script>
   <script src="data/holidays.js" defer></script>
   <script src="data/sources.js" defer></script>
+  <script src="data/tree.js" defer></script>
   <script src="js/i18n.js" defer></script>
   <script src="js/calc.js" defer></script>
   <script src="js/theme.js" defer></script>
   <script src="js/tabs.js" defer></script>
+  <script src="js/ui.js" defer></script>
   <script src="js/minical.js" defer></script>
   <script src="js/calc-ui.js" defer></script>
+  <script src="js/topics.js" defer></script>
+  <script src="js/payout.js" defer></script>
   <script src="js/main.js" defer></script>
 </head>
 <body>
@@ -81,7 +86,7 @@
           <div class="sheet__binding" aria-hidden="true"></div>
           <div class="sheet__body">
 
-            <section class="panel panel--calc" role="tabpanel" id="panel-calc" aria-labelledby="tab-calc">
+            <section class="panel panel--compact panel--calc" role="tabpanel" id="panel-calc" aria-labelledby="tab-calc">
               <span class="panel__ghost" aria-hidden="true" data-i18n="tab.calc.ghost"></span>
               <div class="panel__head">
                 <span class="panel__num" aria-hidden="true">01 / 05</span>
@@ -258,48 +263,106 @@
               </div>
             </section>
 
-            <section class="panel" role="tabpanel" id="panel-rules" aria-labelledby="tab-rules" tabindex="0" hidden>
+            <section class="panel panel--compact" role="tabpanel" id="panel-rules" aria-labelledby="tab-rules" hidden>
               <span class="panel__ghost" aria-hidden="true" data-i18n="tab.rules.ghost"></span>
               <div class="panel__head">
                 <span class="panel__num" aria-hidden="true">02 / 05</span>
                 <h2 class="panel__title" data-i18n="tab.rules.title"></h2>
                 <p class="panel__lead" data-i18n="tab.rules.lead"></p>
               </div>
-              <div class="panel__content">
-                <div class="card stub">
-                  <span class="stub__badge" data-i18n="stub.badge"></span>
-                  <p class="stub__text" data-i18n="tab.rules.stub"></p>
+
+              <div class="topic" data-no-arrow-nav>
+                <div class="seg" role="tablist" id="rules-sub" data-i18n-attr="aria-label:rules.sub.label" data-no-swipe>
+                  <span class="seg__pill" aria-hidden="true"></span>
+                  <button class="seg__btn" role="tab" type="button" id="rsub-steps" data-key="steps" aria-controls="rpanel-steps" aria-selected="true" data-i18n="rules.sub.steps"></button>
+                  <button class="seg__btn" role="tab" type="button" id="rsub-rules" data-key="rules" aria-controls="rpanel-rules" aria-selected="false" tabindex="-1" data-i18n="rules.sub.rules"></button>
+                  <button class="seg__btn" role="tab" type="button" id="rsub-game" data-key="game" aria-controls="rpanel-game" aria-selected="false" tabindex="-1" data-i18n="rules.sub.game"></button>
+                  <button class="seg__btn" role="tab" type="button" id="rsub-deadlines" data-key="deadlines" aria-controls="rpanel-deadlines" aria-selected="false" tabindex="-1" data-i18n="rules.sub.deadlines"></button>
+                </div>
+
+                <!-- По шагам: лента из трёх точек + карточка-объяснение -->
+                <div class="topic__panel steps" role="tabpanel" id="rpanel-steps" aria-labelledby="rsub-steps">
+                  <div class="steps__line" role="tablist" id="steps-line" aria-orientation="vertical" data-i18n-attr="aria-label:rules.steps.label">
+                    <button class="steps__dot" role="tab" type="button" id="step-1" data-key="1" aria-controls="step-card" aria-selected="true">
+                      <span class="steps__num" aria-hidden="true">1</span>
+                      <span class="steps__txt"><span class="steps__title" data-i18n="rules.step.1.title"></span><span class="steps__short" data-i18n="rules.step.1.short"></span></span>
+                    </button>
+                    <button class="steps__dot" role="tab" type="button" id="step-2" data-key="2" aria-controls="step-card" aria-selected="false" tabindex="-1">
+                      <span class="steps__num" aria-hidden="true">2</span>
+                      <span class="steps__txt"><span class="steps__title" data-i18n="rules.step.2.title"></span><span class="steps__short" data-i18n="rules.step.2.short"></span></span>
+                    </button>
+                    <button class="steps__dot" role="tab" type="button" id="step-3" data-key="3" aria-controls="step-card" aria-selected="false" tabindex="-1">
+                      <span class="steps__num" aria-hidden="true">3</span>
+                      <span class="steps__txt"><span class="steps__title" data-i18n="rules.step.3.title"></span><span class="steps__short" data-i18n="rules.step.3.short"></span></span>
+                    </button>
+                  </div>
+                  <div class="steps__card" role="tabpanel" id="step-card" aria-labelledby="step-1"></div>
+                  <p class="topic__hint steps__hint" data-i18n="rules.steps.hint"></p>
+                </div>
+
+                <!-- Правила ст. 13: карточки-перевёртыши -->
+                <div class="topic__panel" role="tabpanel" id="rpanel-rules" aria-labelledby="rsub-rules" hidden>
+                  <p class="topic__hint" data-i18n="rules.flip.hint"></p>
+                  <div class="flips" id="flips"></div>
+                </div>
+
+                <!-- Игра «Угадай дату» -->
+                <div class="topic__panel" role="tabpanel" id="rpanel-game" aria-labelledby="rsub-game" hidden>
+                  <div class="game" id="game"></div>
+                </div>
+
+                <!-- Три срока -->
+                <div class="topic__panel" role="tabpanel" id="rpanel-deadlines" aria-labelledby="rsub-deadlines" hidden>
+                  <h3 class="topic__h" data-i18n="dl.title"></h3>
+                  <div class="dl" id="dl" role="group" data-i18n-attr="aria-label:dl.title" data-no-swipe></div>
                 </div>
               </div>
             </section>
 
-            <section class="panel" role="tabpanel" id="panel-early" aria-labelledby="tab-early" tabindex="0" hidden>
+            <section class="panel panel--compact" role="tabpanel" id="panel-early" aria-labelledby="tab-early" hidden>
               <span class="panel__ghost" aria-hidden="true" data-i18n="tab.early.ghost"></span>
               <div class="panel__head">
                 <span class="panel__num" aria-hidden="true">03 / 05</span>
                 <h2 class="panel__title" data-i18n="tab.early.title"></h2>
                 <p class="panel__lead" data-i18n="tab.early.lead"></p>
               </div>
-              <div class="panel__content">
-                <div class="card stub">
-                  <span class="stub__badge" data-i18n="stub.badge"></span>
-                  <p class="stub__text" data-i18n="tab.early.stub"></p>
+
+              <!-- Дерево решений: структура в data/tree.js -->
+              <div class="topic tree" data-no-arrow-nav>
+                <div class="tree__path">
+                  <p class="tree__path-label" data-i18n="tree.path"></p>
+                  <ol class="tree__crumbs" id="tree-crumbs"></ol>
                 </div>
+                <div class="tree__stage" id="tree-stage" aria-live="polite"></div>
+                <button class="btn btn--ghost btn--sm tree__restart" type="button" id="tree-restart" data-i18n="tree.restart" hidden></button>
               </div>
             </section>
 
-            <section class="panel" role="tabpanel" id="panel-payout" aria-labelledby="tab-payout" tabindex="0" hidden>
+            <section class="panel panel--compact" role="tabpanel" id="panel-payout" aria-labelledby="tab-payout" hidden>
               <span class="panel__ghost" aria-hidden="true" data-i18n="tab.payout.ghost"></span>
               <div class="panel__head">
                 <span class="panel__num" aria-hidden="true">04 / 05</span>
                 <h2 class="panel__title" data-i18n="tab.payout.title"></h2>
                 <p class="panel__lead" data-i18n="tab.payout.lead"></p>
               </div>
-              <div class="panel__content">
-                <div class="card stub">
-                  <span class="stub__badge" data-i18n="stub.badge"></span>
-                  <p class="stub__text" data-i18n="tab.payout.stub"></p>
+
+              <!-- Чек-лист: отметки только в памяти страницы -->
+              <div class="topic pay" data-no-arrow-nav>
+                <div class="pay__top">
+                  <div class="seg" role="tablist" id="pay-sub" data-i18n-attr="aria-label:pay.sub.label" data-no-swipe>
+                    <span class="seg__pill" aria-hidden="true"></span>
+                    <button class="seg__btn" role="tab" type="button" id="psub-money" data-key="money" aria-controls="ppanel-money" aria-selected="true" data-i18n="pay.sub.money"></button>
+                    <button class="seg__btn" role="tab" type="button" id="psub-docs" data-key="docs" aria-controls="ppanel-docs" aria-selected="false" tabindex="-1" data-i18n="pay.sub.docs"></button>
+                  </div>
+                  <div class="pay__progress">
+                    <svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="ring__bg" cx="22" cy="22" r="18"/><circle class="ring__fg" id="pay-ring" cx="22" cy="22" r="18"/></svg>
+                    <p class="pay__count" id="pay-count" aria-live="polite"></p>
+                  </div>
+                  <button class="btn btn--primary btn--sm pay__unpaid" type="button" id="pay-unpaid" aria-haspopup="dialog" aria-controls="help" data-i18n="pay.unpaid"></button>
                 </div>
+                <div class="pay__dates" id="pay-dates"></div>
+                <div class="topic__panel pay__panel" role="tabpanel" id="ppanel-money" aria-labelledby="psub-money"></div>
+                <div class="topic__panel pay__panel" role="tabpanel" id="ppanel-docs" aria-labelledby="psub-docs" hidden></div>
               </div>
             </section>
 
@@ -389,10 +452,7 @@
           <svg aria-hidden="true"><use href="#i-close"/></svg>
         </button>
       </div>
-      <div class="card stub">
-        <span class="stub__badge" data-i18n="stub.badge"></span>
-        <p class="stub__text" data-i18n="help.stub"></p>
-      </div>
+      <div class="help__body" id="help-body"></div>
     </div>
   </dialog>
 </body>

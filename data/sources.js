@@ -68,6 +68,29 @@
       article: null,
       url: "https://cdb.kz/sistema/novosti/prazdnovanie_dnya_konstitutsii_pereneseno_na_15_marta/",
       checkedOn: null
+    },
+
+    // «Куда обратиться», если не заплатили (вкладка ④ и панель). Только эти три ссылки — по заданию автора.
+    {
+      id: "news-wage-delay",
+      act: "МТСЗН РК: куда обращаться работникам при задержке заработной платы (cdb.kz, 05.10.2026)",
+      article: null,
+      url: "https://cdb.kz/sistema/novosti/mtszn_rk_kuda_obrashchatsya_rabotnikam_pri_zaderzhke_zarabotnoy_platy/",
+      checkedOn: null
+    },
+    {
+      id: "gov-771",
+      act: "Как подать жалобу на органы занятости и сроки её рассмотрения? (gov.kz, жизненная ситуация)",
+      article: null,
+      url: "https://www.gov.kz/situations/771/intro",
+      checkedOn: null
+    },
+    {
+      id: "enbek",
+      act: "Министерство труда и социальной защиты населения Республики Казахстан (gov.kz)",
+      article: null,
+      url: "https://www.gov.kz/memleket/entities/enbek",
+      checkedOn: null
     }
   ];
 

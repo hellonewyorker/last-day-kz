@@ -1,0 +1,426 @@
+/* =========================================================
+   Вкладка ② «Как считается срок» и ③ «Можно ли раньше».
+   Всё в один экран: подвкладки, карточки, перевёртыши, шаги.
+   ========================================================= */
+
+.topic {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);   /* длинные строки (цепочка ответов) не растягивают колонку */
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--sp-3);
+}
+.topic__panel { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 2px; animation: card-in var(--dur-mid) var(--ease-out); }
+.topic__hint { font-size: var(--fs-xs); color: var(--c-ink-soft); }
+.topic__h { font-size: var(--fs-lg); margin-bottom: var(--sp-3); }
+
+/* ---------- Подвкладки с «таблеткой» ---------- */
+.seg {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  justify-self: start;
+  max-width: 100%;
+  border-radius: 999px;
+  background: var(--c-desk);
+  border: 1px solid var(--c-line);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.seg::-webkit-scrollbar { display: none; }
+.seg__pill {
+  position: absolute; top: 0; left: 0;
+  border-radius: 999px;
+  background: var(--c-ink);
+  opacity: 0;
+  transition: transform var(--dur-slow) var(--ease-spring), width var(--dur-mid) var(--ease-out), height var(--dur-mid) var(--ease-out);
+}
+.seg__pill.is-ready { opacity: 1; }
+.seg__pill.no-anim { transition: none; }
+.seg__btn {
+  position: relative; z-index: 1;
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 var(--sp-4);
+  border-radius: 999px;
+  white-space: nowrap;
+  font-size: var(--fs-sm); font-weight: 500;
+  color: var(--c-ink-soft);
+  transition: color var(--dur-mid) ease;
+}
+.seg__btn:hover { color: var(--c-ink); }
+.seg__btn[aria-selected="true"] { color: var(--c-on-ink); }
+
+/* ---------- По шагам: лента из трёх точек ---------- */
+.steps { display: grid; gap: var(--sp-4); grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; align-content: start; }
+.steps__line { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); }
+.steps__line::before { /* соединяющая линия */
+  content: ""; position: absolute; top: 21px; left: 16.6%; right: 16.6%;
+  height: 2px; background: color-mix(in srgb, var(--c-bronze) 45%, transparent);
+}
+.steps__dot {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  min-height: var(--tap);
+  padding: 0 4px;
+  text-align: center;
+  border-radius: var(--r-md);
+}
+.steps__num {
+  display: grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--c-sheet); border: 2px solid var(--c-bronze);
+  font-family: var(--font-display); font-weight: 700; color: var(--c-bronze-ink);
+  transition: transform var(--dur-mid) var(--ease-spring), background-color var(--dur-mid) ease, color var(--dur-mid) ease, border-color var(--dur-mid) ease;
+}
+.steps__dot:hover .steps__num { transform: scale(1.08); }
+.steps__dot[aria-selected="true"] .steps__num { background: var(--c-signal); border-color: var(--c-signal); color: var(--c-on-signal); transform: scale(1.12); box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-signal) 18%, transparent); }
+.steps__txt { display: flex; flex-direction: column; }
+.steps__title { font-size: var(--fs-sm); font-weight: 600; }
+.steps__short { display: none; font-size: var(--fs-xs); color: var(--c-ink-soft); }
+.steps__dot[aria-selected="true"] .steps__title { color: var(--c-signal); }
+
+.steps__card {
+  min-height: 0; overflow-y: auto;
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--r-lg);
+  background: var(--c-desk);
+  border: 1px solid var(--c-line);
+  display: flex; flex-direction: column; gap: var(--sp-3);
+  font-size: var(--fs-base); line-height: 1.5;
+}
+.steps__card.is-in { animation: step-in var(--dur-slow) var(--ease-out); }
+@keyframes step-in { from { opacity: 0; transform: translateY(10px) rotate(-0.4deg); } }
+.steps__tag { font-family: var(--font-display); font-size: var(--fs-xs); color: var(--c-bronze-ink); letter-spacing: 0.08em; }
+.steps__h { font-size: var(--fs-xl); }
+
+@media (min-width: 900px) {
+  .steps { grid-template-columns: 280px minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: var(--sp-6); }
+  .steps__line { grid-template-columns: 1fr; grid-template-rows: repeat(3, auto); gap: var(--sp-5); grid-row: 1 / span 2; align-self: start; padding-top: var(--sp-2); }
+  .steps__line::before { top: 24px; bottom: 24px; left: 21px; right: auto; width: 2px; height: auto; }
+  .steps__dot { flex-direction: row; text-align: left; gap: var(--sp-3); }
+  .steps__short { display: block; }
+  .steps__card { grid-column: 2; grid-row: 1 / span 2; align-self: start; max-width: 40rem; }
+  .steps__hint { grid-column: 1; grid-row: 3; }
+}
+
+/* ---------- Карточки-перевёртыши ---------- */
+.flips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(150px, 1fr); gap: var(--sp-3); margin-top: var(--sp-3); }
+.flip { perspective: 900px; animation: tl-in var(--dur-slow) var(--ease-out) both; animation-delay: calc(var(--i, 0) * 70ms); }
+.flip__inner { position: relative; height: 100%; transform-style: preserve-3d; transition: transform var(--dur-slow) var(--ease-out); }
+.flip[data-flipped="true"] .flip__inner { transform: rotateY(180deg); }
+.flip__face {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--c-line);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  text-align: left;
+  overflow: hidden;
+}
+.flip__front { background: var(--c-desk); justify-content: space-between; cursor: pointer; transition: box-shadow var(--dur-mid) ease, transform var(--dur-fast) ease; }
+.flip__front:hover { box-shadow: 0 8px 18px -12px var(--c-shadow); }
+.flip__front::after { content: "↻"; position: absolute; right: var(--sp-3); bottom: var(--sp-2); color: var(--c-bronze); font-size: var(--fs-lg); }
+.flip__back { background: var(--c-ink); color: var(--c-on-ink); transform: rotateY(180deg); }
+.flip__back .ref { color: var(--c-on-ink); border-color: color-mix(in srgb, var(--c-on-ink) 40%, transparent); }
+.flip__back .ref:hover { background: transparent; }
+.flip__tag { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--c-bronze-ink); }
+.flip__back .flip__tag { color: color-mix(in srgb, var(--c-on-ink) 75%, transparent); }
+.flip__q { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-base); line-height: 1.25; padding-right: var(--sp-5); }
+.flip__a { font-size: var(--fs-sm); line-height: 1.4; }
+.flip__a:focus { outline: none; }
+.flip__again { align-self: flex-start; margin-top: auto; font-size: var(--fs-xs); text-decoration: underline; text-underline-offset: 2px; color: inherit; min-height: 32px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flip__inner { transform: none !important; }
+  .flip__face { backface-visibility: visible; }
+  .flip__back { transform: none; }
+  .flip[data-flipped="false"] .flip__back, .flip[data-flipped="true"] .flip__front { visibility: hidden; }
+}
+@media (min-width: 900px) {
+  .flips { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: minmax(220px, 260px); }
+  .flip__q { font-size: var(--fs-lg); }
+  .flip__a { font-size: var(--fs-base); }
+}
+
+/* ---------- Игра «Угадай дату» ---------- */
+.game { display: flex; flex-direction: column; gap: var(--sp-3); max-width: 40rem; }
+.game.is-in { animation: step-in var(--dur-slow) var(--ease-out); }
+.game__top { display: flex; justify-content: space-between; gap: var(--sp-3); font-size: var(--fs-xs); color: var(--c-ink-soft); }
+.game__counter { font-family: var(--font-display); color: var(--c-bronze-ink); }
+.game__person { display: flex; align-items: center; gap: var(--sp-3); }
+.game__avatar {
+  flex-shrink: 0; display: grid; place-items: center;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--c-bronze); color: var(--c-ink);
+  font-family: var(--font-display); font-weight: 800; font-size: var(--fs-lg);
+}
+.game__name { font-weight: 700; }
+.game__meta { font-size: var(--fs-sm); color: var(--c-ink-soft); line-height: 1.35; }
+.game__q { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-lg); }
+.game__opts { display: grid; gap: var(--sp-2); }
+.game__opt {
+  min-height: var(--tap);
+  padding: 0 var(--sp-4);
+  border: 1.5px solid var(--c-line);
+  border-radius: var(--r-md);
+  text-align: left; font-weight: 500;
+  transition: border-color var(--dur-fast) ease, background-color var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+.game__opt:hover:not(:disabled) { border-color: var(--c-bronze); background: var(--c-desk); }
+.game__opt:active:not(:disabled) { transform: scale(0.98); }
+.game__opt:disabled { cursor: default; opacity: 0.6; }
+.game__opt.is-right { opacity: 1; background: var(--c-ink); color: var(--c-on-ink); border-color: var(--c-ink); }
+.game__opt.is-right::after { content: " ✓"; }
+.game__opt.is-wrong { opacity: 1; border-color: var(--c-signal); color: var(--c-signal); text-decoration: line-through; }
+.game__feedback:empty { display: none; }
+.game__feedback { display: flex; flex-direction: column; gap: var(--sp-2); animation: card-in var(--dur-mid) var(--ease-out); }
+.game__verdict { font-weight: 700; color: var(--c-signal); }
+.game__verdict.is-right { color: var(--c-ink); }
+.game__text { font-size: var(--fs-sm); line-height: 1.45; padding: var(--sp-2) var(--sp-3); border-left: 3px solid var(--c-bronze); background: var(--c-desk); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.game__actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+@media (min-width: 900px) {
+  .game__opts { grid-template-columns: repeat(3, 1fr); }
+  .game__opt { text-align: center; }
+}
+
+/* ---------- «Три срока» ---------- */
+.dl { display: flex; flex-direction: column; gap: var(--sp-3); max-width: 36rem; }
+.dl__stage { position: relative; touch-action: pan-y; }
+.dl__card {
+  display: flex; flex-direction: column; gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--r-lg);
+  background: var(--c-desk);
+  border: 1px solid var(--c-line);
+  cursor: pointer;
+  animation: dl-in var(--dur-slow) var(--ease-out);
+}
+.dl__card[data-anim="-1"] { animation-name: dl-in-r; }
+@keyframes dl-in   { from { opacity: 0; transform: translateX(24px) rotate(1deg); } }
+@keyframes dl-in-r { from { opacity: 0; transform: translateX(-24px) rotate(-1deg); } }
+.dl__counter { font-size: var(--fs-xs); color: var(--c-bronze-ink); font-family: var(--font-display); }
+.dl__big { display: flex; align-items: baseline; gap: var(--sp-2); line-height: 1; }
+.dl__num { font-family: var(--font-display); font-weight: 800; font-size: clamp(4rem, 3rem + 6vw, 7rem); color: var(--c-signal); letter-spacing: -0.04em; }
+.dl__unit { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-xl); }
+.dl__caption { font-weight: 700; font-size: var(--fs-lg); }
+.dl__text { font-size: var(--fs-sm); line-height: 1.5; color: var(--c-ink); }
+.dl__nav { display: flex; align-items: center; gap: var(--sp-3); }
+.dl__arrow { width: var(--tap); height: var(--tap); display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--c-line); }
+.dl__arrow:hover { border-color: var(--c-bronze); }
+.dl__arrow svg { width: 20px; height: 20px; }
+.dl__dots { display: flex; gap: var(--sp-2); }
+.dl__dot { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; }
+.dl__dot::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c-line); transition: transform var(--dur-mid) var(--ease-spring), background-color var(--dur-mid) ease; }
+.dl__dot[aria-current="step"]::before { background: var(--c-signal); transform: scale(1.3); }
+
+/* ---------- ③ Дерево решений ---------- */
+.tree { grid-template-rows: auto minmax(0, 1fr) auto; }
+.tree__path { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.tree__path-label { font-size: var(--fs-xs); font-weight: 600; color: var(--c-ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }
+.tree__crumbs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.tree__crumb {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 32px; max-width: 100%;
+  padding: 2px 4px 2px var(--sp-3);
+  border: 1px solid var(--c-line); border-radius: 999px;
+  font-size: var(--fs-xs); text-align: left;
+  animation: card-in var(--dur-mid) var(--ease-out);
+}
+.tree__crumb:hover { border-color: var(--c-bronze); background: var(--c-desk); }
+.tree__crumb-q { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 16rem; color: var(--c-ink-soft); }
+.tree__crumb-a { padding: 2px 8px; border-radius: 999px; background: var(--c-ink); color: var(--c-on-ink); font-weight: 600; }
+.tree__crumb-empty { font-size: var(--fs-xs); color: var(--c-ink-soft); }
+
+.tree__stage { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 2px; }
+.tree__card {
+  max-width: 40rem;
+  display: flex; flex-direction: column; gap: var(--sp-4);
+  padding: var(--sp-5);
+  border-radius: var(--r-lg);
+  background: var(--c-desk);
+  border: 1px solid var(--c-line);
+  animation: step-in var(--dur-slow) var(--ease-out);
+}
+.tree__q { font-size: var(--fs-xl); line-height: 1.25; }
+.tree__q:focus, .tree__title:focus { outline: none; }
+.tree__answers { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+.tree__ans { min-height: 52px; font-size: var(--fs-base); border-radius: var(--r-md); }
+.tree__card--result { gap: var(--sp-3); border-left: 4px solid var(--c-signal); }
+.tree__tag { font-size: var(--fs-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--c-bronze-ink); }
+.tree__title { font-size: var(--fs-xl); line-height: 1.25; }
+.tree__text { font-size: var(--fs-sm); line-height: 1.5; }
+.tree__note { font-size: var(--fs-sm); font-weight: 600; color: var(--c-bronze-ink); }
+.tree__actions:empty { display: none; }
+.tree__disclaimer { font-size: var(--fs-xs); color: var(--c-ink-soft); border-top: 1px dashed var(--c-line); padding-top: var(--sp-2); }
+.tree__restart { justify-self: start; }
+@media (min-width: 900px) {
+  .tree__text { font-size: var(--fs-base); }
+}
+
+/* ---------- Телефон: всё в один экран ---------- */
+@media (max-width: 899px) {
+  .topic { gap: var(--sp-2); }
+  .topic__h { font-size: var(--fs-base); margin-bottom: var(--sp-2); }
+
+  .steps { gap: var(--sp-3); }
+  .steps__hint { display: none; }
+  .steps__num { width: 40px; height: 40px; }
+  .steps__line::before { top: 19px; }
+  .steps__title { font-size: var(--fs-xs); }
+  .steps__card { padding: var(--sp-3) var(--sp-4); gap: var(--sp-2); font-size: var(--fs-sm); line-height: 1.45; }
+  .steps__h { font-size: var(--fs-lg); }
+
+  #rpanel-rules:not([hidden]) { display: flex; flex-direction: column; }
+  .flips { flex: 1 1 auto; min-height: 0; grid-auto-rows: unset; grid-template-rows: repeat(2, minmax(0, 1fr)); gap: var(--sp-2); margin-top: var(--sp-2); }
+  .flip__face { padding: var(--sp-3); gap: 6px; }
+  .flip__q { font-size: var(--fs-sm); padding-right: var(--sp-4); }
+  .flip__a { font-size: 0.8125rem; line-height: 1.35; }
+  .flip__again { min-height: 28px; }
+
+  .game { gap: var(--sp-2); }
+  .game__avatar { width: 40px; height: 40px; font-size: var(--fs-base); }
+  .game__meta { font-size: var(--fs-xs); }
+  .game__q { font-size: var(--fs-base); }
+  .game__opt { min-height: 42px; }
+  .game.is-answered .game__q { display: none; }
+  .game.is-answered .game__opts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .game.is-answered .game__opt { min-height: 30px; padding: 0 var(--sp-2); font-size: var(--fs-xs); }
+  .game__text { font-size: 0.8125rem; }
+
+  .dl__card { padding: var(--sp-3) var(--sp-4); }
+  .dl__num { font-size: 4rem; }
+  .dl__unit { font-size: var(--fs-lg); }
+  .dl__caption { font-size: var(--fs-base); }
+  .dl .topic__hint { display: none; }
+
+  .tree { gap: var(--sp-2); }
+  .tree__crumbs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .tree__crumbs::-webkit-scrollbar { display: none; }
+  .tree__crumb { flex-shrink: 0; }
+  .tree__crumb-q { max-width: 9rem; }
+  .tree__card { padding: var(--sp-3) var(--sp-4); gap: var(--sp-3); }
+  .tree__disclaimer { padding-top: 6px; }
+  .tree__card--result { gap: var(--sp-2); }
+  .tree__q, .tree__title { font-size: var(--fs-lg); }
+  .tree__text { font-size: 0.8125rem; line-height: 1.45; }
+  .tree__note { font-size: var(--fs-xs); }
+}
+
+/* =========================================================
+   ④ Чек-лист «Что получить при увольнении»
+   ========================================================= */
+.pay { grid-template-rows: auto auto minmax(0, 1fr); }
+.pay__top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
+.pay__progress { display: flex; align-items: center; gap: var(--sp-2); }
+.ring { width: 44px; height: 44px; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 5; }
+.ring__bg { stroke: var(--c-line); }
+.ring__fg { stroke: var(--c-signal); stroke-linecap: round; transition: stroke-dashoffset var(--dur-slow) var(--ease-out); }
+.ring.is-done .ring__fg { stroke: var(--c-ink); }
+.pay__count { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-sm); }
+.pay__unpaid { margin-left: auto; }
+.pay__dates { font-size: var(--fs-xs); color: var(--c-ink-soft); }
+
+.pay__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-2); }
+.pay__item {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  background: var(--c-desk);
+  border: 1px solid var(--c-line);
+  transition: background-color var(--dur-mid) ease, border-color var(--dur-mid) ease;
+  animation: tl-in var(--dur-slow) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+.pay__item.is-got { border-color: var(--c-ink); background: color-mix(in srgb, var(--c-bronze) 14%, var(--c-desk)); }
+.pay__check { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; min-width: var(--tap); }
+.pay__check input { position: absolute; opacity: 0; width: 44px; height: 44px; margin: 0; cursor: pointer; }
+.pay__box {
+  display: grid; place-items: center;
+  width: 30px; height: 30px; border-radius: 8px;
+  border: 2px solid var(--c-bronze);
+  background: var(--c-sheet);
+  transition: background-color var(--dur-fast) ease, border-color var(--dur-fast) ease, transform var(--dur-mid) var(--ease-spring);
+}
+.pay__box::after { content: ""; width: 12px; height: 7px; border-left: 3px solid var(--c-on-ink); border-bottom: 3px solid var(--c-on-ink); transform: rotate(-45deg) scale(0); margin-top: -3px; transition: transform var(--dur-mid) var(--ease-spring); }
+.pay__check input:checked + .pay__box { background: var(--c-ink); border-color: var(--c-ink); transform: scale(1.06); }
+.pay__check input:checked + .pay__box::after { transform: rotate(-45deg) scale(1); }
+.pay__check input:focus-visible + .pay__box { outline: 3px solid var(--c-focus); outline-offset: 2px; }
+.pay__got { font-size: 0.6875rem; color: var(--c-ink-soft); }
+.pay__body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.pay__title { font-weight: 700; line-height: 1.3; }
+.pay__text { font-size: var(--fs-sm); color: var(--c-ink-soft); line-height: 1.4; }
+.pay__term { font-size: var(--fs-sm); line-height: 1.5; }
+.pay__term > span:first-child { font-weight: 600; }
+.pay__date {
+  display: inline-block; margin-left: 6px; padding: 0 8px;
+  border-radius: 999px; background: var(--c-signal); color: var(--c-on-signal);
+  font-size: var(--fs-xs); font-weight: 600; white-space: nowrap;
+}
+.pay__hint, .pay__memory { font-size: var(--fs-xs); color: var(--c-ink-soft); }
+.pay__note { margin-top: var(--sp-2); font-size: var(--fs-sm); padding: var(--sp-2) var(--sp-3); border-left: 3px solid var(--c-bronze); background: var(--c-desk); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.pay__memory { margin-top: var(--sp-2); }
+
+/* =========================================================
+   Выдвижная панель «Куда обратиться»
+   ========================================================= */
+.help {
+  margin: 0 0 0 auto;
+  width: min(27rem, 100%);
+  height: 100dvh; max-height: 100dvh;
+  border-radius: var(--r-lg) 0 0 var(--r-lg);
+}
+.help[open] { animation: drawer-in var(--dur-slow) var(--ease-out); }
+@keyframes drawer-in { from { transform: translateX(100%); } }
+.help__inner { height: 100%; max-height: none; align-content: start; gap: var(--sp-3); }
+.help__body { display: flex; flex-direction: column; gap: var(--sp-3); font-size: var(--fs-sm); line-height: 1.45; }
+.help__lead { font-weight: 600; }
+.help__steps { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: var(--sp-2); }
+.help__steps li::marker { font-family: var(--font-display); font-weight: 700; color: var(--c-signal); }
+.help__h { font-size: var(--fs-base); }
+.help__channels { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.help__channels li { padding: 6px var(--sp-3); border-radius: var(--r-sm); background: var(--c-desk); }
+.help__note { font-size: var(--fs-xs); color: var(--c-bronze-ink); font-weight: 600; }
+.help__ministry { font-size: var(--fs-xs); }
+.help__body .btn { align-self: flex-start; }
+.help__disclaimer { font-size: var(--fs-xs); color: var(--c-ink-soft); border-top: 1px dashed var(--c-line); padding-top: var(--sp-2); }
+
+@media (max-width: 899px) {
+  .pay__top { gap: var(--sp-2); }
+  .pay__item { padding: var(--sp-2) var(--sp-3); gap: var(--sp-2); }
+  .pay__text { font-size: 0.8125rem; }
+  .pay__term { font-size: 0.8125rem; }
+  .help { width: 100%; border-radius: 0; }
+  .help__inner { padding: var(--sp-4); }
+}
+
+/* «Подробнее» у пунктов чек-листа: кнопка нужна только на телефоне */
+.pay__toggle { display: none; align-self: flex-start; font-size: var(--fs-xs); color: var(--c-bronze-ink); text-decoration: underline; text-underline-offset: 2px; min-height: 28px; }
+.pay__more { display: flex; flex-direction: column; gap: 3px; }
+@media (max-width: 899px) {
+  .pay__top .seg { flex-basis: 100%; justify-self: stretch; }
+  .pay__top .seg__btn { flex: 1 1 0; }
+  .pay__dates { font-size: 0.6875rem; line-height: 1.35; }
+  .pay__list { gap: 6px; }
+  .pay__title { font-size: var(--fs-sm); }
+  .pay__term { font-size: var(--fs-xs); line-height: 1.45; }
+  .pay__box { width: 26px; height: 26px; }
+  .pay__toggle { display: inline-block; }
+  .pay__item:not(.is-open) .pay__more { display: none; }
+  .pay__note { font-size: var(--fs-xs); margin-top: 6px; padding: 6px var(--sp-3); }
+  .pay__memory { display: none; }
+  .ring { width: 36px; height: 36px; }
+  .help__body { font-size: 0.8125rem; gap: var(--sp-2); }
+  .help__channels li { padding: 4px var(--sp-2); }
+}
+.pay__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-2); }
+@media (max-width: 899px) {
+  .pay__toggle { display: grid; place-items: center; width: 32px; height: 28px; min-height: 0; margin: -2px -6px 0 0; flex-shrink: 0; border-radius: var(--r-sm); text-decoration: none; }
+  .pay__toggle svg { width: 16px; height: 16px; transition: transform var(--dur-mid) var(--ease-out); }
+  .pay__toggle[aria-expanded="true"] svg { transform: rotate(90deg); }
+}
