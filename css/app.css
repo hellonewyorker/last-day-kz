@@ -297,33 +297,6 @@
   padding: var(--sp-4);
 }
 
-/* Заглушка «скоро» */
-.stub {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-4);
-  max-width: 26rem;
-  border-style: dashed;
-  background: transparent;
-}
-.stub__badge {
-  flex-shrink: 0;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--fs-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--c-on-ink);
-  background: var(--c-ink);
-  padding: var(--sp-1) var(--sp-3);
-  border-radius: 999px;
-  animation: stub-pulse 2.4s ease-in-out infinite;
-}
-@keyframes stub-pulse {
-  50% { transform: rotate(-3deg) scale(1.04); }
-}
-.stub__text { color: var(--c-ink-soft); }
-
 /* Листок-дата: фирменный компонент для дат */
 .day-card {
   width: 9.5rem;
@@ -589,7 +562,7 @@
 }
 .next-badge:hover { transform: scale(1.06) rotate(-4deg); background: var(--c-signal); color: var(--c-on-signal); }
 .next-badge:active { transform: scale(0.94); }
-.next-badge__ring { position: absolute; inset: 0; width: 100%; height: 100%; animation: badge-spin 18s linear infinite; }
+.next-badge__ring { position: absolute; inset: 0; width: 100%; height: 100%; animation: badge-spin 18s linear infinite; will-change: transform; }   /* отдельный слой — вращение без рывков */
 .next-badge__text { font-family: var(--font-display); font-weight: 700; font-size: 11.5px; letter-spacing: 0.04em; fill: currentColor; }
 .next-badge__arrow { width: 26px; height: 26px; transition: transform var(--dur-mid) var(--ease-spring); }
 .next-badge:hover .next-badge__arrow { transform: translateX(3px); }

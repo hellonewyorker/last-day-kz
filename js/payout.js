@@ -105,11 +105,8 @@
       "</ol>" +
       '<h3 class="help__h">' + U.esc(t("help.channels")) + "</h3>" +
       '<ul class="help__channels">' +
-        "<li>" + U.esc(t("help.ch.eotinish")) + refs(["ref.news-wage-delay", "ref.gov-771"]) + "</li>" +
-        "<li>" + U.esc(t("help.ch.egov")) + refs(["ref.gov-771"]) + "</li>" +
-        "<li>" + U.esc(t("help.ch.1414")) + refs(["ref.gov-771"]) + "</li>" +
+        "<li>" + U.esc(t("help.ch.eotinish")) + refs(["ref.news-wage-delay"]) + "</li>" +
       "</ul>" +
-      '<p class="help__note">' + U.esc(t("help.ch.note")) + "</p>" +
       '<p class="help__ministry">' + U.esc(t("help.ministry")) + refs(["ref.enbek"]) + "</p>" +
       '<button class="btn btn--ghost btn--sm" type="button" data-help-deadline>' + U.esc(t("help.deadline")) + "</button>" +
       '<p class="help__disclaimer">' + U.esc(t("help.disclaimer")) + "</p>";

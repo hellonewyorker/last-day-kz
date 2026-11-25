@@ -174,7 +174,7 @@
   /* =========================================================
      Карточка источника у пометки-ссылки
      ========================================================= */
-  var pop, popRef = null, hideTimer = 0, showTimer = 0, lastPointer = "mouse";
+  var pop, popRef = null, hideTimer = 0, showTimer = 0, lastPointer = "mouse", quietFocus = false;
   function sourceOf(a) {
     var id = a.getAttribute("data-src");
     return (window.LD_SOURCES || []).filter(function (s) { return s.id === id; })[0] || null;
@@ -200,8 +200,13 @@
       '<p class="ref-pop__act">' + U.esc(s.act) + "</p>" +
       '<p class="ref-pop__art">' + U.esc(a.textContent.trim()) + "</p>" +
       '<p class="ref-pop__date">' + U.esc(checked) + "</p>" +
-      '<a class="btn btn--primary btn--sm ref-pop__open" href="' + U.esc(s.url) + '" target="_blank" rel="noopener" tabindex="-1">' +
-        U.esc(t(isAdilet ? "refpop.open.adilet" : "refpop.open.other")) + "</a>";
+      '<div class="ref-pop__actions">' +
+        '<a class="btn btn--primary btn--sm ref-pop__open" href="' + U.esc(s.url) + '" target="_blank" rel="noopener" tabindex="-1">' +
+          U.esc(t(isAdilet ? "refpop.open.adilet" : "refpop.open.other")) + "</a>" +
+        // запись во вкладке ⑤ (правило 7: пометка ведёт и на портал Әділет, и в «Источники»)
+        (window.App.sources ? '<button class="btn btn--ghost btn--sm ref-pop__list" type="button" tabindex="-1" data-to-list="' + U.esc(s.id) + '">' +
+          U.esc(t("refpop.toList")) + "</button>" : "") +
+      "</div>";
     if (popRef && popRef !== a) popRef.removeAttribute("aria-describedby");
     popRef = a;
     a.setAttribute("aria-describedby", "ref-pop");
@@ -237,13 +242,43 @@
         hideTimer = setTimeout(hidePop, 250);
       }
     });
-    // клавиатура: фокус показывает карточку (Enter по пометке сам откроет Адилет)
+    // клавиатура: фокус показывает карточку (Enter по пометке сам откроет портал Әділет)
     document.addEventListener("focusin", function (e) {
       var a = e.target.closest && e.target.closest("a.ref[data-src]");
+      if (quietFocus) { quietFocus = false; return; }
       if (a && lastPointer !== "touch") showPop(a);
     });
     document.addEventListener("focusout", function (e) {
-      if (e.target.closest && e.target.closest("a.ref[data-src]")) hideTimer = setTimeout(hidePop, 150);
+      if (e.target.closest && (e.target.closest("a.ref[data-src]") || e.target.closest("#ref-pop"))) hideTimer = setTimeout(hidePop, 150);
+    });
+    pop.addEventListener("focusin", function () { clearTimeout(hideTimer); });
+    // кнопка «В списке источников» → вкладка ⑤ с этой записью
+    pop.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-to-list]");
+      if (!b) return;
+      var id = b.getAttribute("data-to-list");
+      hidePop();
+      App.sources.show(id);
+    });
+    // клавиатура: Tab с пометки заходит в карточку (две кнопки), Tab с последней — дальше по странице
+    function popButtons() { return Array.prototype.slice.call(pop.querySelectorAll("a, button")); }
+    function focusAfter(el) {
+      var all = Array.prototype.filter.call(document.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]'), function (x) {
+        return x.tabIndex >= 0 && x.offsetParent !== null && !pop.contains(x) && !x.closest("[inert]");
+      });
+      var next = all[all.indexOf(el) + 1];
+      if (next) next.focus();
+    }
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Tab" || pop.hidden || !popRef) return;
+      var btns = popButtons(), i = btns.indexOf(document.activeElement);
+      if (document.activeElement === popRef && !e.shiftKey) { e.preventDefault(); btns[0].focus(); return; }
+      if (i < 0) return;
+      e.preventDefault();
+      var ref = popRef;
+      if (e.shiftKey) { if (i > 0) btns[i - 1].focus(); else ref.focus(); }
+      else if (i < btns.length - 1) btns[i + 1].focus();
+      else { hidePop(); focusAfter(ref); }
     });
     // тап: первый тап показывает карточку, второй по той же пометке — открывает ссылку
     document.addEventListener("click", function (e) {
@@ -254,7 +289,12 @@
       showPop(a);
     });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && !pop.hidden) { e.stopPropagation(); hidePop(); if (popRef) popRef.focus(); }
+      if (e.key === "Escape" && !pop.hidden) {
+        e.stopPropagation();
+        var r = popRef, inside = pop.contains(document.activeElement);
+        hidePop();
+        if (r && inside) { quietFocus = true; r.focus(); }   // вернуть фокус на пометку, не открывая карточку снова
+      }
     }, true);
     window.addEventListener("resize", hidePop);
     window.addEventListener("ld:tabchange", hidePop);

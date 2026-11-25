@@ -41,7 +41,6 @@
       r_revoke: {
         title: "tree.r.revoke.title",
         parts: [{ text: "tree.r.revoke.text", refs: ["ref.tk-56.p4"] }],
-        note: "tree.r.revoke.exceptions",
         action: "revoke"
       },
       r_liable: {

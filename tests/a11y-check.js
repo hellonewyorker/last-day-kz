@@ -29,7 +29,9 @@
   function bgOf(el) {
     var layers = [];
     for (var e = el; e && e.nodeType === 1; e = e.parentElement) {
-      var c = rgba(getComputedStyle(e).backgroundColor);
+      // выбранная подвкладка лежит на «таблетке» — соседнем элементе .seg__pill / .calc__pill, а не на родителе
+      var pill = e.matches('[role="tab"][aria-selected="true"]') && e.parentElement && e.parentElement.querySelector(".seg__pill, .calc__pill");
+      var c = rgba(getComputedStyle(pill && pill.classList.contains("is-ready") ? pill : e).backgroundColor);
       if (c[3] > 0) { layers.push(c); if (c[3] >= 0.999) break; }
     }
     var base = layers.length && layers[layers.length - 1][3] >= 0.999 ? layers.pop() : rgba(getComputedStyle(document.body).backgroundColor);

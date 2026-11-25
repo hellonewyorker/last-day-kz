@@ -424,3 +424,116 @@
   .pay__toggle svg { width: 16px; height: 16px; transition: transform var(--dur-mid) var(--ease-out); }
   .pay__toggle[aria-expanded="true"] svg { transform: rotate(90deg); }
 }
+
+/* =========================================================
+   ⑤ Источники и оговорка
+   ========================================================= */
+.src__panel { display: flex; flex-direction: column; gap: var(--sp-3); max-width: 56rem; }
+.src__act { font-size: var(--fs-xs); color: var(--c-ink-soft); }
+
+/* статьи ТК — кнопками в сетку */
+.src__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr)); gap: 6px; }
+.src__chip {
+  min-height: var(--tap, 44px);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--c-line);
+  background: var(--c-desk);
+  font-family: var(--font-display); font-weight: 700; font-size: var(--fs-sm);
+  color: var(--c-ink);
+  transition: background-color var(--dur-mid) ease, color var(--dur-mid) ease, transform var(--dur-fast) var(--ease-out);
+  animation: tl-in var(--dur-slow) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 35ms);
+}
+.src__chip:hover { border-color: var(--c-bronze); }
+.src__chip:active { transform: scale(0.96); }
+.src__chip[aria-pressed="true"] { background: var(--c-ink); color: var(--c-on-ink); border-color: var(--c-ink); }
+
+/* карточка выбранной статьи и запись закона */
+.src__card, .src__law {
+  display: flex; flex-direction: column; gap: 6px; align-items: flex-start;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  background: var(--c-sheet);
+  border: 1px solid var(--c-line);
+  border-left: 4px solid var(--c-signal);
+}
+.src__card.is-in { animation: card-in var(--dur-mid) var(--ease-out); }
+.src__card.is-unchecked { border-left-color: var(--c-bronze); }
+.src__title { font-size: var(--fs-base); line-height: var(--lh-tight); }
+.src__title:focus-visible { outline: 2px dashed var(--c-focus); outline-offset: 4px; }
+.src__num { font-family: var(--font-display); color: var(--c-signal); }
+.src__card.is-unchecked .src__title { color: var(--c-bronze-ink); }
+.src__used { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: var(--fs-xs); color: var(--c-ink-soft); }
+.src__place {
+  display: inline-flex; align-items: center; min-height: 28px;
+  padding: 0 var(--sp-2);
+  border-radius: 999px;
+  background: var(--c-desk); border: 1px solid var(--c-line);
+  color: var(--c-ink); font-size: var(--fs-xs); font-weight: 500; text-decoration: none;
+}
+.src__place:hover { border-color: var(--c-bronze); }
+.src__date { font-size: var(--fs-xs); color: var(--c-ink-soft); }
+.src__open { gap: 6px; }
+.src__open svg, .src__link svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* праздники, «куда писать» */
+.src__h { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-sm); text-transform: uppercase; letter-spacing: 0.06em; color: var(--c-bronze-ink); }
+.src__name { font-weight: 600; }
+.src__meta { font-size: var(--fs-xs); }
+.src__hint { font-size: var(--fs-xs); color: var(--c-ink-soft); }
+.src__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.src__link {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
+  min-height: var(--tap, 44px);
+  padding: 6px var(--sp-3);
+  border-radius: var(--r-sm);
+  background: var(--c-desk); border: 1px solid var(--c-line);
+  color: var(--c-ink); font-size: var(--fs-sm); line-height: 1.35; text-decoration: none;
+  transition: border-color var(--dur-mid) ease;
+}
+.src__link:hover { border-color: var(--c-bronze); }
+.src__item.is-target .src__link, .src__law.is-target { animation: src-flash 1.4s var(--ease-out); }
+@keyframes src-flash { 0%, 40% { box-shadow: 0 0 0 3px var(--c-signal); } 100% { box-shadow: 0 0 0 3px transparent; } }
+
+/* оговорка */
+.src__notes { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-2); counter-reset: note; }
+.src__notes li {
+  position: relative; padding: var(--sp-2) var(--sp-3) var(--sp-2) 2.5rem;
+  border-radius: var(--r-sm); background: var(--c-desk);
+  font-size: var(--fs-sm); line-height: 1.4;
+  counter-increment: note;
+  animation: tl-in var(--dur-slow) var(--ease-out) both;
+}
+.src__notes li:nth-child(2) { animation-delay: 60ms; }
+.src__notes li:nth-child(3) { animation-delay: 120ms; }
+.src__notes li:nth-child(4) { animation-delay: 180ms; }
+.src__notes li:nth-child(5) { animation-delay: 240ms; }
+.src__notes li::before {
+  content: counter(note);
+  position: absolute; left: var(--sp-3); top: var(--sp-2);
+  font-family: var(--font-display); font-weight: 800; color: var(--c-signal);
+}
+
+@media (max-width: 899px) {
+  .src__grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .src__chip { font-size: 0.8125rem; padding: 0; }
+  .src__card, .src__law { padding: var(--sp-2) var(--sp-3); }
+  .src__title { font-size: var(--fs-sm); }
+  .src__link { font-size: 0.8125rem; }
+  .src__notes li { font-size: 0.8125rem; padding-block: 6px; }
+}
+.src__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px var(--sp-3); }
+.src__place { position: relative; }
+.src__place::after { content: ""; position: absolute; inset: -8px -2px; }   /* зона нажатия ~44 px по высоте */
+@media (max-width: 899px) {
+  .src .seg { gap: 0; padding: 2px; }
+  .src .seg__btn { padding: 0 5px; font-size: 0.8125rem; flex: 1 1 auto; }
+  .src__panel { gap: var(--sp-2); }
+  .src__law { gap: 4px; }
+  .src__law > .src__h { display: none; }      /* название закона и так начинается с «Закон РК» */
+  .src__name { font-size: var(--fs-sm); line-height: 1.3; }
+  .src__meta { font-size: 0.75rem; line-height: 1.35; }
+  .src__link { min-height: var(--tap, 44px); padding-block: 4px; }
+  .src__link span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+}

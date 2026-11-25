@@ -84,6 +84,7 @@
     App.calcUI.init();
     App.topics.init();
     App.payout.init();
+    App.sources.init();
     initBadge();
     App.fx.init();
   });

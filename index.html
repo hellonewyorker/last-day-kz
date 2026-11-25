@@ -13,13 +13,14 @@
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 
   <!-- Open Graph / превью ссылки в мессенджерах. Картинка — img/og.png (tests/make-images.js).
-       [ПРОВЕРИТЬ] После публикации на GitHub Pages заменить адрес картинки на абсолютный
-       (https://<имя>.github.io/<репозиторий>/img/og.png) — с относительным мессенджеры картинку не покажут. -->
+       Адрес картинки и страницы — абсолютные: с относительным мессенджеры картинку не покажут.
+       Если сайт переедет в другой репозиторий — поменять og:url и og:image. -->
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://hellonewyorker.github.io/last-day-kz/">
   <meta property="og:locale" content="ru_RU">
   <meta property="og:title" data-i18n-attr="content:app.title" content="Последний день — калькулятор увольнения по собственному желанию (РК)">
   <meta property="og:description" data-i18n-attr="content:app.description" content="Простой калькулятор для тех, кто впервые увольняется по собственному желанию в Казахстане: когда закончится срок уведомления и когда с вами должны рассчитаться.">
-  <meta property="og:image" content="img/og.png">
+  <meta property="og:image" content="https://hellonewyorker.github.io/last-day-kz/img/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" data-i18n-attr="content:og.image.alt" content="«Последний день.» — калькулятор увольнения по собственному желанию, Казахстан">
@@ -55,6 +56,7 @@
   <script src="js/calc-ui.js" defer></script>
   <script src="js/topics.js" defer></script>
   <script src="js/payout.js" defer></script>
+  <script src="js/sources.js" defer></script>
   <script src="js/fx.js" defer></script>
   <script src="js/main.js" defer></script>
 </head>
@@ -78,6 +80,7 @@
       <symbol id="i-ics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></symbol>
       <symbol id="i-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></symbol>
       <symbol id="i-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></symbol>
+      <symbol id="i-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/></symbol>
     </defs>
   </svg>
 
@@ -398,18 +401,27 @@
               </div>
             </section>
 
-            <section class="panel" role="tabpanel" id="panel-sources" aria-labelledby="tab-sources" tabindex="0" hidden>
+            <section class="panel panel--compact" role="tabpanel" id="panel-sources" aria-labelledby="tab-sources" hidden>
               <span class="panel__ghost" aria-hidden="true" data-i18n="tab.sources.ghost"></span>
               <div class="panel__head">
                 <span class="panel__num" aria-hidden="true">05 / 05</span>
                 <h2 class="panel__title" data-i18n="tab.sources.title"></h2>
                 <p class="panel__lead" data-i18n="tab.sources.lead"></p>
               </div>
-              <div class="panel__content">
-                <div class="card stub">
-                  <span class="stub__badge" data-i18n="stub.badge"></span>
-                  <p class="stub__text" data-i18n="tab.sources.stub"></p>
+
+              <!-- Список источников из data/sources.js: подвкладки, статьи ТК — кнопками, выбранная — карточкой -->
+              <div class="topic src" data-no-arrow-nav>
+                <div class="seg" role="tablist" id="src-sub" data-i18n-attr="aria-label:src.sub.label" data-no-swipe>
+                  <span class="seg__pill" aria-hidden="true"></span>
+                  <button class="seg__btn" role="tab" type="button" id="ssub-code" data-key="code" aria-controls="spanel-code" aria-selected="true" data-i18n="src.sub.code"></button>
+                  <button class="seg__btn" role="tab" type="button" id="ssub-holidays" data-key="holidays" aria-controls="spanel-holidays" aria-selected="false" tabindex="-1" data-i18n="src.sub.holidays"></button>
+                  <button class="seg__btn" role="tab" type="button" id="ssub-help" data-key="help" aria-controls="spanel-help" aria-selected="false" tabindex="-1" data-i18n="src.sub.help"></button>
+                  <button class="seg__btn" role="tab" type="button" id="ssub-note" data-key="note" aria-controls="spanel-note" aria-selected="false" tabindex="-1" data-i18n="src.sub.note"></button>
                 </div>
+                <div class="topic__panel src__panel" role="tabpanel" id="spanel-code" aria-labelledby="ssub-code"></div>
+                <div class="topic__panel src__panel" role="tabpanel" id="spanel-holidays" aria-labelledby="ssub-holidays" hidden></div>
+                <div class="topic__panel src__panel" role="tabpanel" id="spanel-help" aria-labelledby="ssub-help" hidden></div>
+                <div class="topic__panel src__panel" role="tabpanel" id="spanel-note" aria-labelledby="ssub-note" hidden></div>
               </div>
             </section>
 
@@ -472,7 +484,7 @@
   </div>
 
   <!-- Карточка источника у пометки-ссылки (js/fx.js) -->
-  <div class="ref-pop" id="ref-pop" role="tooltip" hidden></div>
+  <div class="ref-pop" id="ref-pop" role="group" data-i18n-attr="aria-label:refpop.label" hidden></div>
   <!-- Онбординг: три подсказки-пузыря (js/fx.js) -->
   <div class="tour" id="tour" hidden>
     <div class="tour__spot" id="tour-spot"></div>

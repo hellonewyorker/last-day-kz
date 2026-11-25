@@ -15,6 +15,12 @@
   to { opacity: 0; transform: translate(calc(var(--vt-dir, 1) * -48px), 36px) rotate(calc(var(--vt-dir, 1) * -3deg)); }
 }
 @keyframes vt-card-in { from { opacity: 0.4; transform: scale(0.96) translateY(10px); } }
+/* Бейдж «ДАЛЬШЕ →» — свой слой поверх карточки: без этого карточка на время перелистывания
+   закрывала нижнюю часть круга, а вращение замирало (рисовался снимок). Показываем только «живой» новый вид. */
+.next-badge { view-transition-name: next-badge; }
+::view-transition-group(next-badge) { animation: none; z-index: 10; }
+::view-transition-old(next-badge) { display: none; }
+::view-transition-new(next-badge) { animation: none; }
 
 /* ---------- Фон меняет оттенок при переходе между вкладками ----------
    (в старом сайте — пятна с --phase от прокрутки) */
@@ -172,3 +178,5 @@ body { background-color: color-mix(in srgb, var(--c-desk) 88%, var(--tint)); tra
     background-image: radial-gradient(190px 140px at var(--light-x, 50%) var(--light-y, 50%), rgba(255, 255, 255, 0.32), transparent 70%);
   }
 }
+.ref-pop__actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.ref-pop__actions .ref-pop__open { margin-top: 0; }
