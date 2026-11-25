@@ -85,6 +85,32 @@
 .theme-toggle svg { transition: transform var(--dur-slow) var(--ease-spring); }
 .theme-toggle:hover svg { transform: rotate(-25deg); }
 
+/* ---------- Язык: «РУС / ҚАЗ» ---------- */
+.lang {
+  display: inline-flex;
+  padding: 1px;
+  border: 1px solid var(--c-line);
+  border-radius: 999px;
+}
+.lang__btn {
+  min-height: 40px;
+  min-width: 42px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.04em;
+  color: var(--c-ink-soft);
+  transition: background-color var(--dur-mid) ease, color var(--dur-mid) ease, transform var(--dur-fast) ease;
+}
+.lang__btn:hover { color: var(--c-ink); }
+.lang__btn:active { transform: scale(0.94); }
+.lang__btn[aria-pressed="true"] { background: var(--c-ink); color: var(--c-on-ink); }
+/* короткая анимация при смене языка (выключается при prefers-reduced-motion общим правилом) */
+.sheet-wrap.is-lang { animation: lang-swap 280ms var(--ease-out); }
+@keyframes lang-swap { from { opacity: 0.35; transform: translateY(4px); } }
+
 /* ---------- Бегущая строка ---------- */
 .ticker {
   display: flex;

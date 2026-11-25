@@ -195,13 +195,13 @@
     var host = a.closest("dialog[open]") || document.body;
     if (pop.parentNode !== host) host.appendChild(pop);
     var checked = s.checkedOn ? t("refpop.checked", { date: U.long(s.checkedOn, false) }) : t("refpop.unchecked");
-    var isAdilet = /adilet\.zan\.kz/.test(s.url);
+    var loc = U.src(s), isAdilet = loc.adilet;   // название и ссылка — на текущем языке
     pop.innerHTML =
-      '<p class="ref-pop__act">' + U.esc(s.act) + "</p>" +
+      '<p class="ref-pop__act">' + U.esc(loc.act) + "</p>" +
       '<p class="ref-pop__art">' + U.esc(a.textContent.trim()) + "</p>" +
       '<p class="ref-pop__date">' + U.esc(checked) + "</p>" +
       '<div class="ref-pop__actions">' +
-        '<a class="btn btn--primary btn--sm ref-pop__open" href="' + U.esc(s.url) + '" target="_blank" rel="noopener" tabindex="-1">' +
+        '<a class="btn btn--primary btn--sm ref-pop__open" href="' + U.esc(loc.url) + '" target="_blank" rel="noopener" tabindex="-1">' +
           U.esc(t(isAdilet ? "refpop.open.adilet" : "refpop.open.other")) + "</a>" +
         // запись во вкладке ⑤ (правило 7: пометка ведёт и на портал Әділет, и в «Источники»)
         (window.App.sources ? '<button class="btn btn--ghost btn--sm ref-pop__list" type="button" tabindex="-1" data-to-list="' + U.esc(s.id) + '">' +
@@ -449,6 +449,14 @@
     initRefPop();
     initGlass();
     window.addEventListener("ld:tabchange", onTab);
+    // смена языка: заголовки по словам, счётчики, «посмотрели N из 5», открытая подсказка
+    window.addEventListener("ld:langchange", function () {
+      hidePop();
+      splitHeadings();
+      renderStats();
+      renderSeen(App.tabs.ids[App.tabs.current()]);
+      if (!$("tour").hidden) showTourStep();
+    });
     // первая вкладка уже открыта до инициализации эффектов
     var cur = App.tabs.ids[App.tabs.current()] || "calc";
     onTab({ detail: { id: cur } });

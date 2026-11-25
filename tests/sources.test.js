@@ -54,8 +54,8 @@ SOURCES.forEach(function (s) {
 // Пометки на несуществующие источники
 var ids = SOURCES.map(function (s) { return s.id; });
 var all = PLACES.map(function (p) { return p.text; }).join('\n');
-// ключи пометок всегда в кавычках: "ref.tk-56.p1" (а не ref.focus() в коде)
-var unknown = (all.match(/"ref\.[a-z0-9-]+/g) || []).map(function (k) { return k.slice(5); })
+// ключи пометок всегда в кавычках: "ref.tk-56.p1" (а не ref.focus() в коде); "ref.inText.tk" — служебный шаблон, не источник
+var unknown = (all.match(/"ref\.(?!inText\.)[a-z0-9-]+/g) || []).map(function (k) { return k.slice(5); })
   .filter(function (id, i, a) { return a.indexOf(id) === i && ids.indexOf(id) < 0; });
 check('нет пометок на неизвестные источники', unknown.length === 0, unknown.join(', '));
 

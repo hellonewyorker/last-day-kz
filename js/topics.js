@@ -9,6 +9,7 @@
   "use strict";
 
   var U, C;
+  var rerender = [];   // функции перерисовки при смене языка (состояние каждого блока сохраняется)
   function $(id) { return document.getElementById(id); }
   function t(k, v) { return U.t(k, v); }
   function refs(keys) { return (keys || []).map(U.refHtml).join(""); }
@@ -33,9 +34,10 @@
     "3": { title: "rules.step.3.title", parts: [["rules.step.3.text", ["ref.tk-113.p4"]], ["rules.step.3.text2", ["ref.tk-113.p4"]]] }
   };
   function initSteps() {
-    var card = $("step-card");
+    var card = $("step-card"), cur = "1";
     function show(key) {
       var s = STEPS[key];
+      cur = key;
       card.setAttribute("aria-labelledby", "step-" + key);
       card.innerHTML = '<p class="steps__tag">' + U.esc(key + " / 3") + "</p>" +
         '<h3 class="steps__h">' + U.esc(t(s.title)) + "</h3>" +
@@ -44,6 +46,7 @@
     }
     U.Tabs($("steps-line"), function (b, key) { show(key); });
     show("1");
+    rerender.push(function () { show(cur); });
   }
 
   /* ---------- Карточки-перевёртыши (ст. 13) ---------- */
@@ -55,6 +58,7 @@
   ];
   function initFlips() {
     var box = $("flips");
+    function build() {
     box.innerHTML = FLIPS.map(function (f, i) {
       return '<div class="flip" data-flipped="false" style="--i:' + i + '"><div class="flip__inner">' +
         '<button class="flip__face flip__front" type="button" aria-expanded="false" aria-controls="flip-a-' + i + '">' +
@@ -67,8 +71,10 @@
     }).join("");
     // ссылки на обороте недоступны с клавиатуры, пока карточка не перевёрнута
     Array.prototype.forEach.call(box.querySelectorAll(".flip__back a"), function (a) { a.tabIndex = -1; });
+    }
+    build();
 
-    function set(flip, on) {
+    function set(flip, on, noFocus) {
       var front = flip.querySelector(".flip__front"), back = flip.querySelector(".flip__back");
       flip.setAttribute("data-flipped", String(on));
       front.setAttribute("aria-expanded", String(on));
@@ -76,8 +82,13 @@
       front.tabIndex = on ? -1 : 0;
       back.setAttribute("aria-hidden", String(!on));
       Array.prototype.forEach.call(back.querySelectorAll("a, button"), function (el) { el.tabIndex = on ? 0 : -1; });
-      (on ? back.querySelector(".flip__a") : front).focus({ preventScroll: true });
+      if (!noFocus) (on ? back.querySelector(".flip__a") : front).focus({ preventScroll: true });
     }
+    rerender.push(function () {
+      var open = Array.prototype.map.call(box.querySelectorAll(".flip"), function (fl) { return fl.getAttribute("data-flipped") === "true"; });
+      build();
+      Array.prototype.forEach.call(box.querySelectorAll(".flip"), function (fl, k) { if (open[k]) set(fl, true, true); });
+    });
     box.addEventListener("click", function (e) {
       var flip = e.target.closest(".flip");
       if (!flip || e.target.closest("a")) return;
@@ -123,9 +134,10 @@
     return keys;
   }
   function initGame() {
-    var box = $("game"), idx = 0;
+    var box = $("game"), idx = 0, picked = null;   // picked — выбранный ответ (дата), чтобы показать его и после смены языка
     function render() {
       var ex = EXAMPLES[idx], o = options(ex);
+      picked = null;
       box.innerHTML =
         '<div class="game__top"><p class="game__counter">' + U.esc(t("game.counter", { n: idx + 1, total: EXAMPLES.length })) + "</p>" +
           '<p class="game__fiction">' + U.esc(t("game.fictional")) + "</p></div>" +
@@ -139,10 +151,9 @@
         '<div class="game__feedback" id="game-fb" aria-live="polite"></div>';
       box.classList.remove("is-in", "is-answered"); void box.offsetWidth; box.classList.add("is-in");
     }
-    box.addEventListener("click", function (e) {
-      var opt = e.target.closest(".game__opt");
-      if (opt && !opt.disabled) {
+    function answer(opt) {
         var ex = EXAMPLES[idx], o = options(ex), right = opt.getAttribute("data-date") === o.r.noticeEnd;
+        picked = opt.getAttribute("data-date");
         Array.prototype.forEach.call(box.querySelectorAll(".game__opt"), function (b) {
           b.disabled = true;
           if (b.getAttribute("data-date") === o.r.noticeEnd) b.classList.add("is-right");
@@ -155,8 +166,10 @@
           '<p class="game__text">' + U.esc(exampleText(ex, o.r)) + refs(exampleRefs(o.r)) + "</p>" +
           '<div class="game__actions"><button class="btn btn--primary btn--sm" type="button" data-try="' + ex.notice + '">' + U.esc(t("game.try")) + "</button>" +
           '<button class="btn btn--ghost btn--sm" type="button" data-next>' + U.esc(t(last ? "game.restart" : "game.next")) + "</button></div>";
-        return;
-      }
+    }
+    box.addEventListener("click", function (e) {
+      var opt = e.target.closest(".game__opt");
+      if (opt && !opt.disabled) { answer(opt); return; }
       var tryBtn = e.target.closest("[data-try]");
       if (tryBtn) { App.calcUI.tryExample(tryBtn.getAttribute("data-try")); return; }
       if (e.target.closest("[data-next]")) {
@@ -167,6 +180,11 @@
       }
     });
     render();
+    rerender.push(function () {
+      var was = picked;
+      render();
+      if (was) { var opt = box.querySelector('.game__opt[data-date="' + was + '"]'); if (opt) answer(opt); }
+    });
   }
 
   /* ---------- «Три срока, которые важно знать» ---------- */
@@ -218,6 +236,18 @@
     });
     U.onSwipe(stage, function (dir) { show(i + dir, dir); });
     show(0);
+    rerender.push(function () {
+      Array.prototype.forEach.call(box.querySelectorAll(".dl__arrow"), function (b) {
+        var label = t(b.getAttribute("data-dir") === "-1" ? "dl.prev" : "dl.next");
+        b.title = label; b.setAttribute("aria-label", label);
+      });
+      Array.prototype.forEach.call(box.querySelectorAll(".dl__dot"), function (b, k) {
+        var n = DEADLINES[k].n;
+        b.setAttribute("aria-label", t("dl." + n + ".num") + " " + t("dl." + n + ".unit"));
+      });
+      box.querySelector(".topic__hint").textContent = t("dl.hint");
+      show(i, 0);
+    });
   }
 
   /* =========================================================
@@ -276,6 +306,7 @@
     });
     $("tree-restart").addEventListener("click", function () { path = []; render(true); });
     render(false);
+    rerender.push(function () { render(false); });
   }
 
   function init() {
@@ -283,6 +314,7 @@
     if (!U || !C) return;
     if ($("rules-sub")) { initRulesSub(); initSteps(); initFlips(); initGame(); initDeadlines(); }
     if ($("tree-stage") && window.LD_TREE) initTree();
+    window.addEventListener("ld:langchange", function () { rerender.forEach(function (fn) { fn(); }); });
   }
 
   window.App = window.App || {};

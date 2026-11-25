@@ -65,7 +65,7 @@
     head.appendChild(this.titleEl);
     head.appendChild(this.next);
 
-    var wd = el("div", "mc-wd");
+    var wd = this.wdEl = el("div", "mc-wd");
     o.weekdays.forEach(function (w) { wd.appendChild(el("span", null, w)); });
 
     this.grid = el("div", "mc-grid");
@@ -196,6 +196,18 @@
       void this.grid.offsetWidth;
       this.grid.classList.add("is-slide-" + dir);
     }
+  };
+
+  // Смена языка: новые подписи дней недели и стрелок, затем перерисовка (месяц и отметки остаются)
+  MiniCal.prototype.relabel = function (patch) {
+    var o = this.o;
+    Object.keys(patch).forEach(function (k) { o[k] = patch[k]; });
+    Array.prototype.forEach.call(this.wdEl.children, function (span, i) { span.textContent = o.weekdays[i]; });
+    this.prev.title = o.prevLabel;
+    this.next.title = o.nextLabel;
+    this.info.textContent = "";
+    this.render();
+    this.renderLegend();
   };
 
   MiniCal.prototype.renderLegend = function () {

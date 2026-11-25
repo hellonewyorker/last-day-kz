@@ -36,6 +36,7 @@
   function init() {
     apply();
     media.addEventListener("change", function () { if (mode === "auto") apply(); });
+    window.addEventListener("ld:langchange", apply);   // подписи кнопки — на новом языке
     document.getElementById("theme-toggle").addEventListener("click", function () {
       mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
       apply();

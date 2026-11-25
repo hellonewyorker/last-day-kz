@@ -16,11 +16,11 @@
   function source(id) { return list().filter(function (s) { return s.id === id; })[0] || null; }
   function group(g) { return list().filter(function (s) { return s.group === g; }); }
   function num(s) { return s.id.replace("tk-", ""); }
-  function isAdilet(s) { return /adilet\.zan\.kz/.test(s.url); }
+  function isAdilet(s) { return U.src(s).adilet; }
   function checked(on) { return on ? t("refpop.checked", { date: U.long(on, false) }) : t("refpop.unchecked"); }
 
   function openBtn(s, extra) {
-    return '<a class="btn btn--primary btn--sm src__open" href="' + U.esc(s.url) + '" target="_blank" rel="noopener"' + (extra || "") + ">" +
+    return '<a class="btn btn--primary btn--sm src__open" href="' + U.esc(U.src(s).url) + '" target="_blank" rel="noopener"' + (extra || "") + ">" +
       U.esc(t(isAdilet(s) ? "refpop.open.adilet" : "refpop.open.other")) +
       '<svg aria-hidden="true"><use href="#i-out"/></svg></a>';
   }
@@ -38,7 +38,7 @@
     var items = group("code");
     if (!selected) selected = items[0].id;
     $("spanel-code").innerHTML =
-      '<p class="src__act">' + U.esc(items[0].act) + "</p>" +
+      '<p class="src__act">' + U.esc(U.src(items[0]).act) + "</p>" +
       '<div class="src__grid" role="group" aria-label="' + U.esc(t("src.code.label")) + '">' +
         items.map(function (s, i) {
           return '<button class="src__chip" type="button" data-pick="' + s.id + '" aria-controls="src-card" aria-pressed="' + (s.id === selected) + '"' +
@@ -68,16 +68,16 @@
 
   /* ---------- Праздники и «Куда писать» ---------- */
   function newsItem(s) {
-    return '<li class="src__item" data-id="' + s.id + '"><a class="src__link" href="' + U.esc(s.url) + '" target="_blank" rel="noopener">' +
-      "<span>" + U.esc(s.act) + '</span><svg aria-hidden="true"><use href="#i-out"/></svg></a></li>';
+    return '<li class="src__item" data-id="' + s.id + '"><a class="src__link" href="' + U.esc(U.src(s).url) + '" target="_blank" rel="noopener">' +
+      "<span>" + U.esc(U.src(s).act) + '</span><svg aria-hidden="true"><use href="#i-out"/></svg></a></li>';
   }
   function renderHolidays() {
     var law = source("law-holidays"), news = group("holidays").filter(function (s) { return s !== law; });
     $("spanel-holidays").innerHTML =
       '<div class="src__item src__law" data-id="' + law.id + '">' +
         '<p class="src__h">' + U.esc(t("src.law")) + "</p>" +
-        '<p class="src__name">' + U.esc(law.act) + "</p>" +
-        '<p class="src__meta">' + U.esc(law.article) + "</p>" +
+        '<p class="src__name">' + U.esc(U.src(law).act) + "</p>" +
+        '<p class="src__meta">' + U.esc(U.src(law).article) + "</p>" +
         used(law) +
         '<div class="src__foot">' + openBtn(law) + '<p class="src__date">' + U.esc(checked(law.checkedOn)) + "</p></div>" +
       "</div>" +
@@ -95,7 +95,7 @@
   /* ---------- Оговорка ---------- */
   function renderNote() {
     var n = 1, html = "";
-    while (U.t("src.note." + n) !== "src.note." + n && n < 20) { html += "<li>" + U.esc(t("src.note." + n)) + "</li>"; n++; }
+    while (App.i18n.has("src.note." + n) && n < 20) { html += "<li>" + U.esc(t("src.note." + n)) + "</li>"; n++; }
     $("spanel-note").innerHTML = '<ul class="src__notes">' + html + "</ul>" +
       '<p class="src__date">' + U.esc(checked(window.LD_CHECKED_ON)) + "</p>";
   }
@@ -141,6 +141,12 @@
       var b = e.target.closest("[data-pick]");
       if (b) { pick(b.getAttribute("data-pick"), false); return; }
       if (e.target.closest("[data-open-help]")) { var h = $("help"); if (h && h.showModal) h.showModal(); }
+    });
+    // смена языка: выбранная статья и открытая подвкладка остаются
+    window.addEventListener("ld:langchange", function () {
+      renderCode(); renderHolidays(); renderHelp(); renderNote();
+      showSub(sub.current() || "code");
+      sub.place(true);
     });
   }
 

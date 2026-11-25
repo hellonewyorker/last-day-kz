@@ -4,7 +4,9 @@
  *   • список праздников берётся из data/holidays.js (раньше — внутри файла);
  *   • тексты «Суббота», «Воскресенье», «Перенесённый выходной за …» — из data/i18n.js;
  *   • addWorkingDays добавлен в экспорт (для тестов и интерфейса);
- *   • CHECKED_ON берётся из data/sources.js (LD_CHECKED_ON), а не задан здесь.
+ *   • CHECKED_ON берётся из data/sources.js (LD_CHECKED_ON), а не задан здесь;
+ *   • язык текстов можно сменить: setLocale("kk") пересобирает таблицу нерабочих дней
+ *     (названия праздников — name / name_kk из data/holidays.js). Сами даты от языка не зависят.
  * Чистые функции без обращения к странице: их проверяют тесты (tests/calc.test.js).
  * Нормы: ТК РК ст. 13, 56, 84, 113; Закон РК «О праздниках в РК» ст. 2, 3, 5.
  * Даты — строки "ГГГГ-ММ-ДД", внутри считаем в UTC, чтобы не мешали часовые пояса.
@@ -25,7 +27,9 @@
   // null — автор ещё не сверил данные с adilet.zan.kz.
   var CHECKED_ON = root.LD_CHECKED_ON;
   if (!root.I18N) throw new Error('calc.js: сначала подключите data/i18n.js');
-  var TEXT = root.I18N.messages[root.I18N.defaultLocale];
+  // язык при загрузке: в браузере — тот, что выбрал js/i18n.js (?lang=kk), в node-тестах — русский
+  var LOCALE = root.App && root.App.i18n ? root.App.i18n.current() : root.I18N.defaultLocale;
+  var TEXT = root.I18N.messages[LOCALE];
   function t(key, vars) {
     var s = TEXT[key];
     if (s === undefined) throw new Error('calc.js: нет текста ' + key);
@@ -47,8 +51,11 @@
   function weekday(isoDate) { return new Date(parse(isoDate)).getUTCDay(); } // 0 = вс
   function isWeekend(isoDate) { var w = weekday(isoDate); return w === 0 || w === 6; }
 
+  // Название праздника на текущем языке (казахское — из Закона о праздниках и ст. 84 п. 5 ТК, см. notes/articles-kz.md)
+  function holidayName(h) { return (LOCALE !== 'ru' && h['name_' + LOCALE]) || h.name; }
+
   // Строим таблицу нерабочих дней на период календаря.
-  var nonWorking = (function build() {
+  function build() {
     var map = {};
     var years = [];
     for (var y = +CALENDAR_FROM.slice(0, 4); y <= +CALENDAR_TO.slice(0, 4); y++) years.push(y);
@@ -56,8 +63,8 @@
     // Праздники с переносом (в старом коде — HOLIDAYS_MD): каждый год периода, начиная с CALENDAR_FROM
     var holidays = [];
     HOLIDAYS.filter(function (h) { return h.transfer; }).forEach(function (h) {
-      if (h.yearly) years.forEach(function (y) { holidays.push([y + '-' + h.date, h.name]); });
-      else holidays.push([h.date, h.name]);
+      if (h.yearly) years.forEach(function (y) { holidays.push([y + '-' + h.date, holidayName(h)]); });
+      else holidays.push([h.date, holidayName(h)]);
     });
     holidays = holidays.filter(function (h) { return h[0] >= CALENDAR_FROM; }).sort();
 
@@ -66,7 +73,7 @@
     // Выходные без переноса (в старом коде — TK_DAYS_OFF, ст. 84 п. 5 ТК РК)
     HOLIDAYS.filter(function (h) { return !h.transfer; }).forEach(function (h) {
       var dates = h.yearly ? years.map(function (y) { return y + '-' + h.date; }) : [h.date];
-      dates.forEach(function (k) { if (!map[k]) map[k] = h.name; });
+      dates.forEach(function (k) { if (!map[k]) map[k] = holidayName(h); });
     });
 
     // ст. 5 Закона: праздник в субботу/воскресенье → выходным становится следующий после праздника рабочий день.
@@ -77,7 +84,16 @@
       map[d] = t('calc.dayoff.transferred', { name: h[1] });
     });
     return map;
-  })();
+  }
+  var nonWorking = build();
+
+  // Смена языка: тексты «Суббота», названия праздников и т. п. — на новом языке; даты те же
+  function setLocale(loc) {
+    if (!root.I18N.messages[loc]) return;
+    LOCALE = loc;
+    TEXT = root.I18N.messages[loc];
+    nonWorking = build();
+  }
 
   function dayOffReason(isoDate) {
     if (nonWorking[isoDate]) return nonWorking[isoDate];
@@ -252,7 +268,9 @@
     MAX_DAYS: MAX_DAYS,
     CALENDAR_FROM: CALENDAR_FROM,
     CALENDAR_TO: CALENDAR_TO,
-    CHECKED_ON: CHECKED_ON
+    CHECKED_ON: CHECKED_ON,
+    setLocale: setLocale,
+    holidayName: holidayName
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.LastDay = api;

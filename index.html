@@ -101,6 +101,11 @@
           <svg aria-hidden="true"><use href="#i-help"/></svg>
           <span class="btn__label" data-i18n="help.open"></span>
         </button>
+        <!-- Язык: ?lang=kk в адресе, без перезагрузки (js/main.js → App.i18n.setLocale) -->
+        <div class="lang" role="group" id="lang-switch" data-i18n-attr="aria-label:lang.label">
+          <button class="lang__btn" type="button" data-lang="ru" lang="ru" aria-pressed="true" data-i18n="lang.ru.short" data-i18n-attr="aria-label:lang.ru.name;title:lang.ru.name"></button>
+          <button class="lang__btn" type="button" data-lang="kk" lang="kk" aria-pressed="false" data-i18n="lang.kk.short" data-i18n-attr="aria-label:lang.kk.name;title:lang.kk.name"></button>
+        </div>
         <button class="btn btn--ghost theme-toggle" type="button" id="theme-toggle" data-mode="auto">
           <svg class="theme-ic theme-ic--auto" aria-hidden="true"><use href="#i-auto"/></svg>
           <svg class="theme-ic theme-ic--light" aria-hidden="true"><use href="#i-sun"/></svg>

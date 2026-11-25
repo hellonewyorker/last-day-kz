@@ -51,7 +51,7 @@
   // Даты и месяцы — только через Intl (правило 9 CLAUDE.md); timeZone UTC, т.к. даты хранятся как UTC-полночь
   var fmtCache = {};
   function fmt(opts) {
-    var k = JSON.stringify(opts);
+    var k = App.i18n.current() + JSON.stringify(opts);   // свой форматтер для каждого языка
     if (!fmtCache[k]) {
       var o = { timeZone: "UTC" };
       Object.keys(opts).forEach(function (x) { o[x] = opts[x]; });
@@ -66,9 +66,11 @@
     return withWeekday === false ? s : s + ", " + weekdayName(iso);
   }
 
-  var pluralRules = new Intl.PluralRules(App.i18n.locale);
+  var pluralRules = {};   // по языку: в казахском после числа слово не меняется (ключи .one/.few/.many одинаковые)
   function plural(n, base) {
-    var k = base + "." + pluralRules.select(n);
+    var loc = App.i18n.current();
+    if (!pluralRules[loc]) pluralRules[loc] = new Intl.PluralRules(loc);
+    var k = base + "." + pluralRules[loc].select(n);
     return App.i18n.has(k) ? t(k) : t(base + ".many");
   }
   // «1 месяц», «2 месяца и 10 дней», «45 дней»
@@ -84,15 +86,17 @@
   function refHtml(r) {
     var s = sources[r.id];
     if (!s) return "";
-    return ' <a class="ref" href="' + esc(s.url) + '" target="_blank" rel="noopener" data-src="' + esc(r.id) + '">' + esc(t(r.key)) + "</a>";
+    return ' <a class="ref" href="' + esc(App.ui.src(s).url) + '" target="_blank" rel="noopener" data-src="' + esc(r.id) + '">' + esc(t(r.key)) + "</a>";
   }
+  // Пометка в тексте для копирования и .ics: у статей ТК — «ст. 56 п. 1 ТК РК» / «ҚР ЕК 56-бап 1-т.», у остальных — как есть
+  function refText(r) { return /^tk-/.test(r.id) ? t("ref.inText.tk").replace("{ref}", t(r.key)) : t(r.key); }
   function part(text, refs) { return { text: text, refs: refs || [] }; }
   function partsHtml(parts) {
     return parts.map(function (p) { return (p.html || esc(p.text)) + p.refs.map(refHtml).join(""); }).join(" ");
   }
   function partsText(parts) {
     return parts.map(function (p) {
-      return p.text + (p.refs.length ? " (" + p.refs.map(function (r) { return t(r.key) + " ТК РК"; }).join(", ") + ")" : "");
+      return p.text + (p.refs.length ? " (" + p.refs.map(refText).join(", ") + ")" : "");
     }).join(" ");
   }
 
@@ -160,7 +164,7 @@
   // Пометки к перечням выходных и праздников: Закон о праздниках; Рождество и Курбан-айт — ст. 84 п. 5 ТК
   function dayOffRefs(reasons) {
     var sat = t("calc.dayoff.saturday"), sun = t("calc.dayoff.sunday");
-    var tkNames = (window.LD_HOLIDAYS || []).filter(function (h) { return !h.transfer; }).map(function (h) { return h.name; });
+    var tkNames = (window.LD_HOLIDAYS || []).filter(function (h) { return !h.transfer; }).map(C.holidayName);
     var law = false, tk = false;
     reasons.forEach(function (r) {
       if (!r || r === sat || r === sun) return;
@@ -637,21 +641,24 @@
     $("calc-ics").addEventListener("click", downloadIcs);
   }
 
-  function initCalendar() {
+  function weekdayLabels() {
     var weekdays = [];
     for (var i = 0; i < 7; i++) weekdays.push(fmt({ weekday: "short" }).format(toDate(addDays("2024-01-01", i)))); // 01.01.2024 — понедельник
-    var sat = t("calc.dayoff.saturday"), sun = t("calc.dayoff.sunday");
+    return weekdays;
+  }
+  function initCalendar() {
     cal = new App.MiniCal($("minical"), {
       min: C.CALENDAR_FROM,
       max: C.CALENDAR_TO,
       onPick: onPick,
       reason: function (d) { return C.dayOffReason(d); },
-      isWeekendReason: function (r) { return r === sat || r === sun; },
+      // «Суббота»/«Воскресенье» — на текущем языке, поэтому сравниваем при каждом вызове
+      isWeekendReason: function (r) { return r === t("calc.dayoff.saturday") || r === t("calc.dayoff.sunday"); },
       title: function (y, m) {
         var s = fmt({ month: "long", year: "numeric" }).format(new Date(Date.UTC(y, m, 1)));
         return s.charAt(0).toUpperCase() + s.slice(1);
       },
-      weekdays: weekdays,
+      weekdays: weekdayLabels(),
       short: short,
       markLabel: function (k) { return t("calc.legend." + k); },
       prevLabel: t("calc.cal.prev"),
@@ -659,6 +666,19 @@
     });
     cal.setToday(todayIso());
     Array.prototype.forEach.call(document.querySelectorAll(".field__pick"), function (b) { b.title = t("calc.cal.pick"); });
+  }
+
+  // Смена языка: введённые даты и выбранный режим остаются, уже посчитанные результаты пересчитываются на новом языке
+  function onLangChange() {
+    fmtCache = {};
+    MODES.forEach(function (m) { if (state.results[m]) state.results[m] = RUN[m](); });
+    $("calc-status").textContent = "";
+    $("calc-live").textContent = "";
+    cal.relabel({ weekdays: weekdayLabels(), prevLabel: t("calc.cal.prev"), nextLabel: t("calc.cal.next") });
+    Array.prototype.forEach.call(document.querySelectorAll(".field__pick"), function (b) { b.title = t("calc.cal.pick"); });
+    renderTarget();
+    leafShown = null;                 // листок перерисуется без перелистывания
+    render();
   }
 
   function init() {
@@ -673,6 +693,7 @@
     syncLayout();
     wide.addEventListener("change", syncLayout);
     setMode("last");
+    window.addEventListener("ld:langchange", onLangChange);
   }
 
   /* ---------- Вызовы из других вкладок ---------- */

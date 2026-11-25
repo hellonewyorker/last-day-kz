@@ -4,6 +4,8 @@
    Новые URL — только те, что дал автор (5 штук). Якоря #zNN — как в _old/app.js.
 
    Поля: id, act (название акта / материала), article (статья), url, checkedOn (дата проверки),
+   kk — то же на казахском: { act, article, url }. Названия актов — как на казахской странице портала Әділет,
+   ссылки — на /kaz/docs/ (якоря те же). У новостей без казахской версии — русская ссылка с пометкой «орыс тілінде».
    group — подвкладка во вкладке ⑤ («code» — Трудовой кодекс, «holidays» — праздники, «help» — куда обратиться),
    usedOn — где на сайте есть пометка на этот источник: calc, rules, early, payout (вкладки) и help (панель
    «Куда обратиться»). Совпадение с кодом проверяет node tests/sources.test.js.
@@ -15,6 +17,8 @@
 
   var TK_ACT = "Трудовой кодекс Республики Казахстан от 23.11.2015 № 414-V";
   var TK_URL = "https://adilet.zan.kz/rus/docs/K1500000414";
+  var TK_ACT_KK = "Қазақстан Республикасының Еңбек кодексі (2015 жылғы 23 қарашадағы № 414-V)";
+  var TK_URL_KK = "https://adilet.zan.kz/kaz/docs/K1500000414";
   // Дата сверки с adilet.zan.kz (формат "ГГГГ-ММ-ДД"). Поставлена автором 25.11.2026 после сверки
   // праздников и статей ТК. При новой сверке — заменить; null = «ещё не проверено».
   root.LD_CHECKED_ON = "2026-11-25";
@@ -27,7 +31,8 @@
       url: anchor ? TK_URL + "#" + anchor : TK_URL,
       checkedOn: root.LD_CHECKED_ON,
       group: "code",
-      usedOn: usedOn
+      usedOn: usedOn,
+      kk: { act: TK_ACT_KK, article: article + "-бап", url: anchor ? TK_URL_KK + "#" + anchor : TK_URL_KK }
     };
   }
 
@@ -50,7 +55,12 @@
       url: "https://adilet.zan.kz/rus/docs/Z010000267_",
       checkedOn: root.LD_CHECKED_ON,
       group: "holidays",
-      usedOn: ["calc", "rules"]
+      usedOn: ["calc", "rules"],
+      kk: {
+        act: "«Қазақстан Республикасындағы мерекелер туралы» Қазақстан Республикасының Заңы (2001 жылғы 13 желтоқсандағы № 267-II)",
+        article: "2, 3, 5-баптар (ҚР 11.06.2026 № 306-VIII Заңының редакциясында: 01.07.2026 бастап Конституция күні — 15 наурыз)",
+        url: "https://adilet.zan.kz/kaz/docs/Z010000267_"
+      }
     },
 
     // Новостные материалы — для сверки дат, не нормативные акты
@@ -61,7 +71,8 @@
       url: "https://rus.azattyq-ruhy.kz/society/117936-ramazan-i-kurban-ait-dumk-utverdilo-daty-na-2027-god",
       checkedOn: null,
       group: "holidays",
-      usedOn: ["calc"]
+      usedOn: ["calc"],
+      kk: { act: null, article: null, url: null, note: "орыс тілінде" }
     },
     {
       id: "news-newyear-2027",
@@ -70,7 +81,8 @@
       url: "https://digitalbusiness.kz/2026-10-29/kazahstantsi-mogut-planirovat-noviy-god-izvestno-o-perenose-vihodnih-i-korotkoy-nedele/",
       checkedOn: null,
       group: "holidays",
-      usedOn: ["calc"]
+      usedOn: ["calc"],
+      kk: { act: null, article: null, url: null, note: "орыс тілінде" }
     },
     {
       id: "news-constitution-day",
@@ -79,7 +91,8 @@
       url: "https://cdb.kz/sistema/novosti/prazdnovanie_dnya_konstitutsii_pereneseno_na_15_marta/",
       checkedOn: null,
       group: "holidays",
-      usedOn: ["calc"]
+      usedOn: ["calc"],
+      kk: { act: null, article: null, url: null, note: "орыс тілінде" }
     },
 
     // «Куда обратиться», если не заплатили (вкладка ④ и панель). gov-771 (gov.kz, жалобы на органы занятости)
@@ -91,7 +104,8 @@
       url: "https://cdb.kz/sistema/novosti/mtszn_rk_kuda_obrashchatsya_rabotnikam_pri_zaderzhke_zarabotnoy_platy/",
       checkedOn: null,
       group: "help",
-      usedOn: ["help"]
+      usedOn: ["help"],
+      kk: { act: null, article: null, url: null, note: "орыс тілінде" }
     },
     {
       id: "enbek",
@@ -100,7 +114,8 @@
       url: "https://www.gov.kz/memleket/entities/enbek",
       checkedOn: null,
       group: "help",
-      usedOn: ["help"]
+      usedOn: ["help"],
+      kk: { act: "Қазақстан Республикасының Еңбек және халықты әлеуметтік қорғау министрлігі (gov.kz)", article: null, url: "https://www.gov.kz/memleket/entities/enbek?lang=kk" }
     }
   ];
 

@@ -110,6 +110,9 @@
       '<p class="help__ministry">' + U.esc(t("help.ministry")) + refs(["ref.enbek"]) + "</p>" +
       '<button class="btn btn--ghost btn--sm" type="button" data-help-deadline>' + U.esc(t("help.deadline")) + "</button>" +
       '<p class="help__disclaimer">' + U.esc(t("help.disclaimer")) + "</p>";
+  }
+  function initHelp() {
+    renderHelp();
     $("help-body").addEventListener("click", function (e) {
       if (e.target.closest("[data-help-deadline]")) {
         $("help").close();
@@ -121,8 +124,12 @@
   function init() {
     U = App.ui; C = window.LastDay;
     if (!U || !C) return;
-    if ($("help-body")) renderHelp();
+    if ($("help-body")) {
+      initHelp();
+      window.addEventListener("ld:langchange", renderHelp);
+    }
     if (!$("pay-sub")) return;
+    window.addEventListener("ld:langchange", render);   // отметки «получил» и раскрытые пункты: got{} в памяти сохраняется
 
     U.Tabs($("pay-sub"), function (b, key) {
       $("ppanel-money").hidden = key !== "money";

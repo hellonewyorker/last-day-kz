@@ -28,17 +28,27 @@
     }
     return sources[id];
   }
+  // Источник на текущем языке: название акта, статья, ссылка (казахские — из поля kk в data/sources.js)
+  function src(s) {
+    var loc = App.i18n.current(), k = loc !== "ru" && s[loc] ? s[loc] : {};
+    return {
+      act: (k.act || s.act) + (k.note ? " (" + k.note + ")" : ""),
+      article: k.article || s.article,
+      url: k.url || s.url,
+      adilet: /adilet\.zan\.kz/.test(k.url || s.url)
+    };
+  }
   // key — ключ подписи в i18n: "ref.tk-56.p2" → источник "tk-56"
   function refHtml(key) {
     var id = key.split(".")[1], s = source(id);
     if (!s) return "";
-    return ' <a class="ref" href="' + esc(s.url) + '" target="_blank" rel="noopener" data-src="' + esc(id) + '">' + esc(t(key)) + "</a>";
+    return ' <a class="ref" href="' + esc(src(s).url) + '" target="_blank" rel="noopener" data-src="' + esc(id) + '">' + esc(t(key)) + "</a>";
   }
 
   /* ---------- Даты ---------- */
   var fmtCache = {};
   function fmt(opts) {
-    var k = JSON.stringify(opts);
+    var k = App.i18n.current() + JSON.stringify(opts);   // свой форматтер для каждого языка
     if (!fmtCache[k]) {
       var o = { timeZone: "UTC" };
       Object.keys(opts).forEach(function (x) { o[x] = opts[x]; });
@@ -130,7 +140,7 @@
 
   window.App = window.App || {};
   window.App.ui = {
-    t: t, esc: esc, lowerFirst: lowerFirst, refHtml: refHtml,
+    t: t, esc: esc, lowerFirst: lowerFirst, refHtml: refHtml, src: src, source: source,
     fmt: fmt, toDate: toDate, addDays: addDays, short: short, long: long, weekdayName: weekdayName,
     Tabs: Tabs, onSwipe: onSwipe, reduced: reduced
   };
