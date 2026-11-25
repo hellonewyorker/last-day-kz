@@ -38,11 +38,17 @@
       adilet: /adilet\.zan\.kz/.test(k.url || s.url)
     };
   }
-  // key — ключ подписи в i18n: "ref.tk-56.p2" → источник "tk-56"
+  // Ссылка пометки: если для пункта есть якорь (points в data/sources.js) — прямо на пункт, иначе на статью.
+  // key — ключ подписи в i18n: "ref.tk-56.p2" → источник "tk-56", пункт "p2"; «пп. 4–5» ("p4-5") → на п. 4
+  function refUrl(s, key) {
+    var url = src(s).url, point = (key.split(".")[2] || "").split("-")[0];
+    var anchors = s.points && s.points[App.i18n.current()];
+    return point && anchors && anchors[point] ? url.split("#")[0] + "#" + anchors[point] : url;
+  }
   function refHtml(key) {
     var id = key.split(".")[1], s = source(id);
     if (!s) return "";
-    return ' <a class="ref" href="' + esc(src(s).url) + '" target="_blank" rel="noopener" data-src="' + esc(id) + '">' + esc(t(key)) + "</a>";
+    return ' <a class="ref" href="' + esc(refUrl(s, key)) + '" target="_blank" rel="noopener" data-src="' + esc(id) + '">' + esc(t(key)) + "</a>";
   }
 
   /* ---------- Даты ---------- */
@@ -140,7 +146,7 @@
 
   window.App = window.App || {};
   window.App.ui = {
-    t: t, esc: esc, lowerFirst: lowerFirst, refHtml: refHtml, src: src, source: source,
+    t: t, esc: esc, lowerFirst: lowerFirst, refHtml: refHtml, refUrl: refUrl, src: src, source: source,
     fmt: fmt, toDate: toDate, addDays: addDays, short: short, long: long, weekdayName: weekdayName,
     Tabs: Tabs, onSwipe: onSwipe, reduced: reduced
   };

@@ -86,7 +86,7 @@
   function refHtml(r) {
     var s = sources[r.id];
     if (!s) return "";
-    return ' <a class="ref" href="' + esc(App.ui.src(s).url) + '" target="_blank" rel="noopener" data-src="' + esc(r.id) + '">' + esc(t(r.key)) + "</a>";
+    return ' <a class="ref" href="' + esc(App.ui.refUrl(s, r.key)) + '" target="_blank" rel="noopener" data-src="' + esc(r.id) + '">' + esc(t(r.key)) + "</a>";
   }
   // Пометка в тексте для копирования и .ics: у статей ТК — «ст. 56 п. 1 ТК РК» / «ҚР ЕК 56-бап 1-т.», у остальных — как есть
   function refText(r) { return /^tk-/.test(r.id) ? t("ref.inText.tk").replace("{ref}", t(r.key)) : t(r.key); }

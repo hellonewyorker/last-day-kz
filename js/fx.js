@@ -201,7 +201,7 @@
       '<p class="ref-pop__art">' + U.esc(a.textContent.trim()) + "</p>" +
       '<p class="ref-pop__date">' + U.esc(checked) + "</p>" +
       '<div class="ref-pop__actions">' +
-        '<a class="btn btn--primary btn--sm ref-pop__open" href="' + U.esc(loc.url) + '" target="_blank" rel="noopener" tabindex="-1">' +
+        '<a class="btn btn--primary btn--sm ref-pop__open" href="' + U.esc(a.getAttribute("href") || loc.url) + '" target="_blank" rel="noopener" tabindex="-1">' +
           U.esc(t(isAdilet ? "refpop.open.adilet" : "refpop.open.other")) + "</a>" +
         // запись во вкладке ⑤ (правило 7: пометка ведёт и на портал Әділет, и в «Источники»)
         (window.App.sources ? '<button class="btn btn--ghost btn--sm ref-pop__list" type="button" tabindex="-1" data-to-list="' + U.esc(s.id) + '">' +

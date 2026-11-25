@@ -51,6 +51,16 @@ SOURCES.forEach(function (s) {
   if (s.group === 'code') check(s.id + ': есть название статьи', !!T['src.' + s.id + '.title']);
 });
 
+// Пометки с пунктом («ст. 113 п. 4») ведут прямо на пункт: нужен якорь на русской и казахской странице портала
+Object.keys(T).filter(function (k) { return /^ref\.tk-\d+\.p\d/.test(k); }).forEach(function (k) {
+  var id = k.split('.')[1], p = k.split('.')[2].split('-')[0];
+  var s = SOURCES.filter(function (x) { return x.id === id; })[0];
+  ['ru', 'kk'].forEach(function (loc) {
+    var a = s && s.points && s.points[loc] && s.points[loc][p];
+    check(k + ': якорь пункта (' + loc + ')', !!a && /^z\d+$/.test(a), 'нет points.' + loc + '.' + p + ' в data/sources.js');
+  });
+});
+
 // Пометки на несуществующие источники
 var ids = SOURCES.map(function (s) { return s.id; });
 var all = PLACES.map(function (p) { return p.text; }).join('\n');
